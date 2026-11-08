@@ -1,0 +1,59 @@
+name: Construir APK de Android
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Instalar dependencias
+        run: npm install
+
+      - name: Copiar librería de reconocimiento facial y modelos (para que funcione sin internet)
+        run: npm run vendor
+
+      - name: Crear el proyecto Android
+        run: |
+          if [ ! -d android ]; then npx cap add android; fi
+          python3 scripts/permisos_android.py
+
+      - name: Generar iconos (si falla, se usa el icono por defecto)
+        continue-on-error: true
+        run: npx capacitor-assets generate --android
+
+      - name: Sincronizar archivos web con Android
+        run: npx cap sync android
+
+      - name: Asegurar SDK de Android 35 (normalmente ya viene instalado)
+        continue-on-error: true
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;35.0.0" || true
+
+      - name: Compilar APK (debug)
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Guardar el APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: visionix-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error

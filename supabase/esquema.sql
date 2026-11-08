@@ -14,9 +14,12 @@
 --   · Seguridad por fila (RLS): el ADMINISTRADOR lo ve y lo cambia todo; el
 --     PERSONAL AUTORIZADO solo lee lo que necesita para ver SUS avisos y no puede
 --     escribir nada (solo marcar como leídos sus avisos, con una función).
---   · Funciones para entrar: crear_primer_admin, registrar_admin,
+--   · Funciones para entrar: verificar_clave_producto y crear_admin_con_clave
+--     (crear una cuenta de administrador exige la CLAVE DE PRODUCTO), registrar_admin,
 --     entrar_personal (con bloqueo tras varios intentos), salir_personal,
 --     marcar_leidas.
+--   · «clave_producto»: la clave que pide la app para crear cuentas de administrador
+--     (en esta versión de prueba es V15I0N1X; cómo cambiarla: al final de este archivo).
 -- ============================================================================
 
 -- ---------------------------------------------------------------------------
@@ -58,6 +61,15 @@ create table if not exists public.intentos_login (
   hasta  timestamptz,
   ultimo timestamptz not null default now()
 );
+
+-- Clave de producto: la que hay que escribir para crear una cuenta de administrador (una sola fila).
+-- Nadie la lee ni la cambia desde la app (sin permisos ni políticas): solo las funciones de abajo.
+-- Al volver a ejecutar este archivo NO se pisa una clave que ya hayas cambiado.
+create table if not exists public.clave_producto (
+  id    integer primary key default 1 check (id = 1),
+  clave text not null
+);
+insert into public.clave_producto (id, clave) values (1, 'V15I0N1X') on conflict (id) do nothing;
 
 -- «updated_at» siempre al día
 create or replace function public.tocar_updated_at() returns trigger
@@ -137,6 +149,7 @@ drop policy if exists ver_el_mio on public.perfiles;
 create policy ver_el_mio on public.perfiles for select to authenticated using (auth_uid = auth.uid());
 
 alter table public.intentos_login enable row level security;  -- sin políticas: nadie la toca directamente
+alter table public.clave_producto enable row level security;  -- ídem
 
 -- Permisos de tabla: nada para «anon»; «authenticated» solo lo que las políticas permitan.
 revoke all on all tables in schema public from anon, authenticated;
@@ -180,28 +193,62 @@ language sql stable security definer set search_path = public as $$
   select exists (select 1 from public.perfiles where rol = 'admin')
 $$;
 
--- Crea el PRIMER administrador (solo funciona mientras no haya ninguno).
--- Antes hay que crear la cuenta con correo y contraseña (la app lo hace con auth.signUp).
-create or replace function public.crear_primer_admin(p_id text, p_nombre text, p_detalle text)
-returns jsonb language plpgsql security definer set search_path = public as $$
-declare v_email text; v_data jsonb;
+-- ¿Es correcta la clave de producto? (la app lo pregunta ANTES de crear la cuenta, para no dejar cuentas a medias)
+-- Tras 5 fallos seguidos (en total, de cualquier persona) se bloquea 5 minutos: así no se puede adivinar probando.
+-- Importante: devuelve el fallo en lugar de lanzar un error, para que el contador de intentos no se deshaga.
+drop function if exists public.crear_primer_admin(text, text, text);          -- versiones anteriores
+drop function if exists public.crear_primer_admin_manual(text, text, text);
+create or replace function public.verificar_clave_producto(p_clave text) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  v_uid uuid := auth.uid();
+  v_claves text[] := array['k:global'];
+  v_k text;
+  v_hasta timestamptz;
+  v_n integer;
 begin
-  if auth.uid() is null or public.soy_anonimo() then
+  if v_uid is not null then v_claves := v_claves || ('k:' || v_uid::text); end if;
+  select max(hasta) into v_hasta from public.intentos_login where clave = any (v_claves) and hasta > now();
+  if v_hasta is not null then
+    return jsonb_build_object('ok', false, 'motivo', 'bloqueado', 'espera', ceil(extract(epoch from (v_hasta - now())))::integer);
+  end if;
+  if coalesce(trim(p_clave), '') <> ''
+     and upper(regexp_replace(p_clave, '\s', '', 'g')) = (select upper(clave) from public.clave_producto where id = 1) then
+    if v_uid is not null then delete from public.intentos_login where clave = 'k:' || v_uid::text; end if;
+    return jsonb_build_object('ok', true);
+  end if;
+  foreach v_k in array v_claves loop
+    insert into public.intentos_login (clave, n, ultimo) values (v_k, 1, now())
+      on conflict (clave) do update
+        set n = case when public.intentos_login.ultimo < now() - interval '15 minutes' then 1 else public.intentos_login.n + 1 end,
+            ultimo = now()
+      returning n into v_n;
+    if v_n >= 5 then
+      update public.intentos_login set hasta = now() + interval '5 minutes', n = 0 where clave = v_k;
+    end if;
+  end loop;
+  return jsonb_build_object('ok', false, 'motivo', 'clave');
+end $$;
+
+-- Crea una cuenta de administrador para quien ya tiene su cuenta con correo y contraseña (la app la crea con auth.signUp),
+-- siempre que escriba la clave de producto correcta. Devuelve {ok:true, usuario} o {ok:false, motivo, espera}.
+create or replace function public.crear_admin_con_clave(p_id text, p_nombre text, p_detalle text, p_clave text)
+returns jsonb language plpgsql security definer set search_path = public as $$
+declare v_uid uuid := auth.uid(); v_v jsonb; v_email text; v_data jsonb;
+begin
+  if v_uid is null or public.soy_anonimo() then
     raise exception 'Necesitas una cuenta con correo y contraseña.';
   end if;
-  lock table public.perfiles in exclusive mode;      -- dos personas a la vez: solo una gana
-  if exists (select 1 from public.perfiles where rol = 'admin') then
-    raise exception 'Ya existe un administrador.';
-  end if;
-  if coalesce(trim(p_nombre), '') = '' or coalesce(trim(p_id), '') = '' then
-    raise exception 'Falta el nombre.';
-  end if;
-  select email into v_email from auth.users where id = auth.uid();
+  if coalesce(trim(p_nombre), '') = '' or coalesce(trim(p_id), '') = '' then raise exception 'Falta el nombre.'; end if;
+  if exists (select 1 from public.perfiles where auth_uid = v_uid) then raise exception 'Esta cuenta ya tiene un perfil.'; end if;
+  v_v := public.verificar_clave_producto(p_clave);
+  if not coalesce((v_v ->> 'ok')::boolean, false) then return v_v; end if;
+  select email into v_email from auth.users where id = v_uid;
   v_data := jsonb_build_object('id', p_id, 'nombre', trim(p_nombre), 'detalle', coalesce(trim(p_detalle), ''), 'rol', 'directivo', 'email', v_email);
   insert into public.usuarios (id, data, nombre_norm, puesto, codigo_norm)
     values (p_id, v_data, lower(trim(p_nombre)), 'directivo', '');
-  insert into public.perfiles (auth_uid, rol, persona_id) values (auth.uid(), 'admin', p_id);
-  return v_data;
+  insert into public.perfiles (auth_uid, rol, persona_id) values (v_uid, 'admin', p_id);
+  return jsonb_build_object('ok', true, 'usuario', v_data);
 end $$;
 
 -- Un administrador da de alta a otro (la cuenta con correo ya se creó con auth.signUp).
@@ -295,7 +342,8 @@ end $$;
 revoke execute on all functions in schema public from public, anon, authenticated;
 grant execute on function public.hay_admin() to anon, authenticated;
 grant execute on function public.es_admin(), public.es_personal(), public.mi_persona() to authenticated;
-grant execute on function public.crear_primer_admin(text, text, text) to authenticated;
+grant execute on function public.verificar_clave_producto(text) to anon, authenticated;
+grant execute on function public.crear_admin_con_clave(text, text, text, text) to authenticated;
 grant execute on function public.registrar_admin(uuid, text, text, text) to authenticated;
 grant execute on function public.entrar_personal(text, text, text) to authenticated;
 grant execute on function public.salir_personal() to authenticated;
@@ -319,4 +367,14 @@ end $$;
 -- ---------------------------------------------------------------------------
 -- Opcional (limpieza): borra las sesiones anónimas con más de 30 días sin usarse.
 --   delete from auth.users where is_anonymous and coalesce(last_sign_in_at, created_at) < now() - interval '30 days';
+-- ---------------------------------------------------------------------------
+
+-- ---------------------------------------------------------------------------
+-- CLAVE DE PRODUCTO (para crear cuentas de administrador en la app)
+--   En esta versión de prueba es  V15I0N1X  (la app la muestra como comentario de prueba en esa pantalla).
+--   Para cambiarla, ejecuta (con la clave que quieras):
+--
+--        update public.clave_producto set clave = 'NUEVA-CLAVE';
+--
+--   Quien tenga la clave puede crear cuentas de administrador (ven y cambian TODO): no la repartas.
 -- ---------------------------------------------------------------------------

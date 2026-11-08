@@ -15,12 +15,17 @@ La app completa vive en un solo archivo: `www/index.html`. La conexión con tu p
 1. **Crea la cuenta y el proyecto.** Entra a <https://supabase.com>, crea una cuenta (gratis) y un proyecto nuevo (elige una región cercana y guarda la contraseña de la base de datos; no la necesitas en la app).
 2. **Crea las tablas y los permisos.** En el proyecto abre **SQL Editor → New query**, pega **todo** el contenido de `supabase/esquema.sql` y pulsa **Run**. Debe terminar sin errores (se puede ejecutar otra vez sin romper nada).
 3. **Ajusta la autenticación** (*Authentication*; los nombres del menú pueden variar un poco según la versión del panel):
-   - **Desactiva «Confirm email»** (Authentication → Sign In / Providers → Email). Hazlo **antes** de crear el primer administrador; si no, la cuenta queda sin confirmar. Si ya creaste una así, bórrala en Authentication → Users.
+   - **Desactiva «Confirm email»** (Authentication → Sign In / Providers → Email). Hazlo **antes** de crear el primer administrador en la app; si no, la cuenta queda sin confirmar y no puede entrar. Si ya creaste una así, bórrala en Authentication → Users.
    - **Activa «Allow anonymous sign-ins»** (Authentication → Sign In / Providers). El personal autorizado lo usa para entrar sin correo; sin esto, su inicio de sesión falla.
-   - Deja activado «Allow new users to sign up» (lo usan los administradores al crearse).
+   - Deja activado «Allow new users to sign up» (lo usan los administradores al crear su cuenta en la app).
 4. **Copia dos datos del proyecto** (**Project Settings → API** o *API Keys*): la **Project URL** (`https://xxxx.supabase.co`) y la clave **pública** (`anon` o `publishable`; empieza con `eyJ…` o `sb_publishable_…`).
    - ⚠ **Nunca uses la clave `service_role` ni la `secret`**: dan acceso total a la base de datos y no deben ir en una app. VISIONIX la rechaza.
    - La clave pública *está pensada para ir dentro de la app*: lo que protege los datos son los permisos de la base de datos (`esquema.sql`), no esconder esa clave. Por eso puede viajar en el repositorio o en la APK.
+
+> No hay que crear al administrador en Supabase: se crea dentro de la app (ver «Cómo entrar», más abajo), pidiendo la **clave de producto**.
+> En esta versión de prueba la clave es **`V15I0N1X`** y viene ya guardada en la base de datos (tabla `clave_producto`). La propia app la muestra como «comentario de prueba» en esa pantalla.
+> Si quieres otra, ejecútala en el SQL Editor: `update public.clave_producto set clave = 'NUEVA-CLAVE';` (volver a ejecutar `esquema.sql` no la pisa).
+> **Si ya habías ejecutado una versión anterior de `esquema.sql`:** vuelve a ejecutar el archivo nuevo completo (agrega la clave y las funciones nuevas, y no borra tus datos).
 
 ## Paso 2 — Escribir la conexión en `www/config.js`
 
@@ -77,7 +82,7 @@ npm install
 npm run vendor                       # copia face-api (reconocimiento facial), sus modelos y supabase-js dentro de www/ (funciona sin internet)
 npx cap add android
 python3 scripts/permisos_android.py  # agrega el permiso de cámara
-npx capacitor-assets generate --android   # (opcional) pone el icono de la app
+npx capacitor-assets generate --android   # (opcional) pone el logo de VISIONIX como icono de la app
 npx cap sync android
 npx cap open android                 # en Android Studio: conecta tu teléfono con «Depuración USB» y pulsa ▶ Run
 ```
@@ -90,10 +95,13 @@ Sirve para probar en una computadora: ábrelo con Chrome. La cámara no funciona
 
 ## Cómo entrar: administradores y personal autorizado
 
-La app **no trae ninguna cuenta ni contraseña de prueba**. La primera vez que se abre con la base de datos vacía muestra **«Configuración inicial»**:
-escribes tu nombre, cargo, **correo** y la contraseña que elijas (mínimo 6 caracteres). Esa cuenta queda como administradora, y puedes empezar con los datos de muestra (45 alumnos, 15 grupos, personal y horarios de ejemplo) o con la base vacía.
-**Hazlo de inmediato después del paso 1:** mientras no exista ningún administrador, cualquiera que tenga la URL y la clave pública podría quedarse con esa primera cuenta.
-Después puedes crear más administradores desde «Personal y grupos → Agregar administrador».
+La app **no trae ninguna cuenta ni contraseña de prueba**. La pantalla de inicio tiene dos pestañas:
+
+- **Personal autorizado** (la que se ve al abrir la app): nombre + puesto + código. Es lo único que ve un profesor que la descarga: **nunca se le pide crear una cuenta**.
+- **Administrador:** correo y contraseña. Ahí mismo, debajo, está **«Crear cuenta de administrador»**: pide tu nombre, cargo (opcional), correo, una contraseña que elijas (mínimo 6 caracteres) y la **clave de producto**. Sin la clave correcta no se crea la cuenta (la comprueba la base de datos, no solo la pantalla). Si el sistema está vacío, el Monitor ofrece **«Cargar datos de muestra»** (45 alumnos, 15 grupos, personal, zonas, cámaras y horarios de ejemplo).
+
+La clave de producto sirve para crear **varias** cuentas de administrador (por ejemplo, directora y subdirector). Después, un administrador también puede crear más desde «Personal y grupos → Agregar administrador».
+⚠ Quien tenga la clave puede crear una cuenta que **ve y cambia todo**: es de prueba, no la repartas. La base de datos bloquea 5 minutos tras 5 claves equivocadas seguidas (en total, de cualquier persona), para que no se pueda adivinar probando.
 
 Hay dos tipos de cuenta:
 
@@ -141,7 +149,7 @@ Hay dos tipos de cuenta:
 
 ## Cómo probarla en el teléfono
 
-1. Crea tu cuenta de **administrador** (primer arranque) o entra con ella.
+1. Crea tu cuenta de **administrador** (pestaña Administrador → «Crear cuenta de administrador», con la clave de producto) o entra con ella. Si el sistema está vacío, pulsa «Cargar datos de muestra».
 2. **Alumnos → Agregar alumno** (o «Registrar rostro» en uno de muestra): pon tu nombre y mira la cámara.
    Por defecto se usa la cámara frontal; en **Monitor** hay un selector para cambiar a la trasera.
 3. **Ajustes → Hora de prueba**: elige una hora que coincida con una clase (por ejemplo «Clase 1 · 07:03»). Es un ajuste compartido: todos los dispositivos lo ven igual.
@@ -169,7 +177,10 @@ Por diseño la app **no explica pasos de Supabase en pantalla**; estos son los m
 |---|---|
 | «La aplicación no está configurada para conectarse a su servidor» | `config.js` vacío o inválido (clave secreta, URL sin `https`). Revisa el paso 2. |
 | «La base de datos del servidor no está lista» | No se ejecutó `supabase/esquema.sql` (paso 1.2). Si acabas de ejecutarlo, espera un minuto: Supabase actualiza su caché. |
-| «La cuenta se creó, pero el servidor exige confirmar el correo» / «Ese correo aún no está confirmado» | «Confirm email» está activo (paso 1.3). Desactívalo; si ya hay una cuenta sin confirmar, bórrala en Authentication → Users. |
+| «Ese correo aún no está confirmado» / «La cuenta se creó, pero el servidor exige confirmar el correo antes de entrar» | «Confirm email» está activo (paso 1.3). Desactívalo; la cuenta que quedó sin confirmar bórrala en Authentication → Users (o repite el formulario con el mismo correo y contraseña). |
+| «La clave de producto no es correcta» | Revisa la clave (en la versión de prueba es `V15I0N1X`; no importan mayúsculas) o si la cambiaste con `update public.clave_producto …`. |
+| «Demasiados intentos. Espera N min…» | 5 claves de producto equivocadas seguidas: se bloquea unos minutos. |
+| «Ya existe una cuenta con ese correo…» / «Esa cuenta ya existe: usa «Iniciar sesión»» | Ese correo ya tiene cuenta; entra con su contraseña por «Administrador → Iniciar sesión». |
 | «El servidor no permite el acceso del personal autorizado» | «Allow anonymous sign-ins» está desactivado (paso 1.3). |
 | «El servidor no permite crear cuentas nuevas» | «Allow new users to sign up» está desactivado (paso 1.3). |
 | «La aplicación no se pudo identificar ante el servidor» | URL o clave incorrectas en `config.js` (paso 1.4 / 2). |
@@ -199,6 +210,6 @@ Por diseño la app **no explica pasos de Supabase en pantalla**; estos son los m
 | `package.json`, `capacitor.config.json` | Empaquetado como app Android con Capacitor (id: `com.visionix.prueba`) |
 | `scripts/copiar_libreria.js` | Copia las librerías (reconocimiento facial y su modelo, y `supabase-js`) dentro de la app |
 | `scripts/permisos_android.py` | Agrega el permiso de cámara al proyecto Android |
-| `assets/` | Icono de la app (se aplica con `capacitor-assets`) |
+| `assets/` | Ícono de la app con el logo de VISIONIX (se aplica con `capacitor-assets`; el logo completo va dentro de la pantalla de inicio de sesión) |
 | `.github/workflows/android-apk.yml` | Compila el APK automáticamente en GitHub |
 | `.github/workflows/pages.yml` | (Opcional) Publica la página instalable en GitHub Pages |

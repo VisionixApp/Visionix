@@ -1,0 +1,22 @@
+{
+  "name": "visionix-prueba",
+  "version": "4.0.0",
+  "private": true,
+  "description": "VISIONIX (versión de prueba, con Supabase) empaquetada como app Android con Capacitor",
+  "scripts": {
+    "vendor": "node scripts/copiar_libreria.js",
+    "android:add": "cap add android && python3 scripts/permisos_android.py",
+    "android:sync": "npm run vendor && cap sync android",
+    "android:open": "cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/core": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^7.0.0",
+    "@supabase/supabase-js": "^2.45.0",
+    "@vladmandic/face-api": "^1.7.14"
+  }
+}

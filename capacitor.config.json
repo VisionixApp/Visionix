@@ -1,0 +1,11 @@
+{
+  "appId": "com.visionix.prueba",
+  "appName": "VISIONIX",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}

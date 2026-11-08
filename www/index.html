@@ -1,0 +1,2345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VISIONIX · Versión de prueba</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0f766e">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>:root{
+  --bg:#f4f6f8; --card:#ffffff; --text:#1b2430; --muted:#667085; --line:#e3e7ec;
+  --accent:#0f766e; --accent-ink:#ffffff; --accent-soft:#e2f4f1;
+  --info:#2563eb; --info-soft:#e8f0ff; --aviso:#b45309; --aviso-soft:#fff3dc;
+  --crit:#b91c1c; --crit-soft:#fde8e8; --ok:#15803d; --ok-soft:#e3f6e9;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0e1217; --card:#171c23; --text:#e8ecf1; --muted:#98a2b3; --line:#2a313b;
+    --accent:#2dd4bf; --accent-ink:#052622; --accent-soft:#123833;
+    --info:#7db0ff; --info-soft:#17284a; --aviso:#fbbf24; --aviso-soft:#3a2d10;
+    --crit:#ff8a8a; --crit-soft:#451a1a; --ok:#4ade80; --ok-soft:#12331f;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+h2{font-size:17px;margin:0 0 10px}
+h3{font-size:15px;margin:0 0 8px}
+p{margin:0 0 10px}
+small,.muted{color:var(--muted)}
+.top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--card);border-bottom:1px solid var(--line)}
+.brand{display:flex;gap:10px;align-items:center}
+.brand .logo{width:34px;height:34px;border-radius:9px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:18px}
+.brand strong{display:block;line-height:1.1}
+.brand small{display:block;font-size:12px}
+.top-right{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{display:inline-block;padding:4px 10px;border-radius:999px;background:var(--bg);border:1px solid var(--line);font-size:12.5px;white-space:nowrap}
+.chip.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.chip.err{background:var(--crit-soft);color:var(--crit);border-color:transparent;cursor:pointer}
+.chip.sim{background:var(--aviso-soft);color:var(--aviso);border-color:transparent}
+label{font-size:13px;color:var(--muted);display:inline-flex;flex-direction:column;gap:3px}
+label.inline{flex-direction:row;align-items:center;gap:8px}
+.verComo{flex-direction:row;align-items:center;gap:6px;max-width:100%}
+.verComo select{flex:1 1 auto;min-width:0}
+@media (max-width:560px){.top-right{width:100%}.top-right .verComo{width:100%}}
+input,select,button{font:inherit;color:inherit}
+input,select{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 8px;min-width:0;max-width:100%}
+input[type=checkbox]{padding:0;width:16px;height:16px}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+button{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer}
+button:hover:not(:disabled){border-color:var(--accent)}
+button:disabled{opacity:.5;cursor:not-allowed}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+button.danger{color:var(--crit)}
+button.sm{padding:3px 8px;font-size:13px}
+nav{display:flex;gap:2px;overflow-x:auto;padding:0 12px;background:var(--card);border-bottom:1px solid var(--line)}
+nav button{border:0;border-bottom:3px solid transparent;border-radius:0;background:none;padding:11px 12px;white-space:nowrap;color:var(--muted)}
+nav button.on{color:var(--text);border-bottom-color:var(--accent);font-weight:600}
+nav .badge{display:inline-block;min-width:18px;padding:0 5px;margin-left:5px;border-radius:9px;background:var(--crit);color:#fff;font-size:11.5px;text-align:center}
+main{max-width:1180px;margin:0 auto;padding:16px 14px 60px}
+.tab{display:none}.tab.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:1fr}}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin:8px 0}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:12.5px;color:var(--muted);font-weight:600;white-space:nowrap}
+td input,td select{width:100%}
+td select{min-width:104px}
+td input[type=time]{min-width:116px}
+td input:not([type=time]):not([type=checkbox]){min-width:120px}
+td.acts{white-space:nowrap}
+td.acts button{margin-right:4px}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;background:var(--bg);border:1px solid var(--line);font-size:12.5px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.pill.warn{background:var(--aviso-soft);color:var(--aviso);border-color:transparent}
+.pill.bad{background:var(--crit-soft);color:var(--crit);border-color:transparent}
+.pill.info{background:var(--info-soft);color:var(--info);border-color:transparent}
+.stage{position:relative;background:#0b0f14;border-radius:10px;overflow:hidden;aspect-ratio:4/3;display:grid;place-items:center}
+.stage.small{max-width:420px;margin:8px auto}
+.stage video,.stage canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.stage video.mirror{transform:scaleX(-1)}
+#stagePlaceholder{color:#9aa4b2;font-size:14px;position:relative}
+.flash{animation:flash .5s}
+@keyframes flash{from{box-shadow:inset 0 0 0 6px #fff}to{box-shadow:inset 0 0 0 0 #fff}}
+.notif{display:grid;grid-template-columns:auto 1fr;gap:12px;border:1px solid var(--line);border-left-width:5px;border-radius:10px;padding:10px 12px;margin-bottom:8px;background:var(--card)}
+.notif.info{border-left-color:var(--info)}.notif.aviso{border-left-color:var(--aviso)}.notif.critica{border-left-color:var(--crit)}
+.notif.nueva{background:var(--accent-soft)}
+/* aviso discreto (persona sin registro facial en horario de clase): compacto, gris, sin resaltar */
+.notif.sutil{border-left-color:var(--line);padding:6px 12px;margin-bottom:6px;background:transparent}
+.notif.sutil .thumb,.notif.sutil .ph{width:36px;height:36px;font-size:15px}
+.notif.sutil h4{font-size:13.5px;font-weight:600;color:var(--muted)}
+.notif.sutil .meta{font-size:12px}
+.notif .thumb{width:64px;height:64px;border-radius:8px;object-fit:cover;background:var(--bg)}
+.notif .ph{width:64px;height:64px;border-radius:8px;background:var(--bg);display:grid;place-items:center;color:var(--muted);font-size:22px}
+.notif h4{margin:0 0 2px;font-size:14.5px}
+.notif .meta{font-size:12.5px;color:var(--muted)}
+.log{max-height:300px;overflow:auto;font-size:13px}
+.log div{padding:4px 0;border-bottom:1px dashed var(--line)}
+.log time{color:var(--muted);margin-right:6px}
+.banner{padding:9px 12px;border-radius:9px;margin:8px 0;font-size:13.5px}
+.banner.warn{background:var(--aviso-soft);color:var(--aviso)}
+.banner.bad{background:var(--crit-soft);color:var(--crit)}
+.banner.info{background:var(--info-soft);color:var(--info)}
+.banner.ok{background:var(--ok-soft);color:var(--ok)}
+.banner ul{margin:4px 0 0 18px;padding:0}
+#modal{position:fixed;inset:0;background:rgba(10,14,20,.6);display:grid;place-items:center;z-index:50;padding:14px}
+#modal[hidden]{display:none}
+.modal{background:var(--card);border-radius:14px;padding:18px;width:min(520px,100%);max-height:92vh;overflow:auto}
+.modal .row{justify-content:flex-end}
+.prompt{font-size:18px;font-weight:600;text-align:center;margin:6px 0}
+progress{width:100%;height:10px}
+.check{flex-direction:row;align-items:flex-start;gap:8px;color:var(--text);font-size:14px;margin:10px 0}
+#toasts{position:fixed;right:12px;bottom:12px;display:flex;flex-direction:column;gap:8px;z-index:60;max-width:min(380px,calc(100vw - 24px))}
+.toast{background:var(--text);color:var(--bg);padding:10px 14px;border-radius:10px;font-size:14px;box-shadow:0 6px 20px rgba(0,0,0,.25);border-left:5px solid var(--info)}
+.toast.aviso{border-left-color:var(--aviso)}.toast.critica{border-left-color:var(--crit)}.toast.ok{border-left-color:var(--ok)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px}
+.kv b{font-weight:600}
+.presets{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+details{margin-top:8px} summary{cursor:pointer;color:var(--muted)}
+code{background:var(--bg);padding:1px 5px;border-radius:5px;font-size:13px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 10px}
+
+/* celulares: muescas y barras del sistema (env() en navegadores, variables que inyecta Capacitor en Android) */
+:root{
+  --sat:max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px));
+  --sab:max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px));
+  --sal:max(env(safe-area-inset-left,0px),var(--safe-area-inset-left,0px));
+  --sar:max(env(safe-area-inset-right,0px),var(--safe-area-inset-right,0px));
+}
+.top{padding-top:calc(12px + var(--sat));padding-left:calc(18px + var(--sal));padding-right:calc(18px + var(--sar))}
+nav{padding-left:calc(12px + var(--sal));padding-right:calc(12px + var(--sar))}
+main{padding-left:calc(14px + var(--sal));padding-right:calc(14px + var(--sar));padding-bottom:calc(60px + var(--sab))}
+#toasts{bottom:calc(12px + var(--sab));right:calc(12px + var(--sar))}
+
+/* inicio de sesión y permisos */
+[hidden]{display:none!important}
+body.sin-sesion nav,body.sin-sesion main,body.sin-sesion .top-right{display:none}
+#login{display:none;max-width:480px;margin:22px auto;padding:0 calc(14px + var(--sar)) 0 calc(14px + var(--sal))}
+body.sin-sesion #login{display:block}
+.loginCard form{display:flex;flex-direction:column;gap:10px}
+.loginCard form input,.loginCard form select{width:100%;padding:9px 10px;font-size:16px}
+.loginCard button.primary{padding:10px;font-size:15px}
+.seg{display:flex;gap:6px;margin:4px 0 14px}
+.seg button{flex:1;padding:9px 8px}
+.seg button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+#loginAyuda ul{margin:2px 0 10px 18px;padding:0}
+#loginAyuda code,.codigo{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+.codigo{letter-spacing:1px;font-weight:600}
+.olvido{margin-top:8px}
+.checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:0 14px;margin-bottom:8px}
+.checks .check{margin:4px 0}
+.chip.sesion{background:var(--accent-soft);color:var(--text);border-color:transparent;max-width:100%;white-space:normal}
+td.codcol{white-space:nowrap}
+.loginCard form input[type=checkbox]{width:auto;padding:0;margin-top:2px}
+select[data-f="rol"]{min-width:140px}
+
+/* conexión con el servidor de prueba (varios dispositivos) */
+.conexion summary{cursor:pointer}
+.conexion label{display:block;margin:8px 0}
+.conexion input{width:100%}
+.conexion .banner{margin:10px 0 0}
+#conexionCard{max-width:520px;margin-left:auto;margin-right:auto}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <div class="logo">◉</div>
+    <div><strong>VISIONIX</strong><small id="subMarca">Versión de prueba</small></div>
+  </div>
+  <div class="top-right">
+    <span id="chipSync" class="chip" hidden></span>
+    <span id="chipLib" class="chip">Reconocimiento: cargando…</span>
+    <span id="reloj" class="chip"></span>
+    <span id="chipSesion" class="chip sesion"></span>
+    <button id="btnSalir" class="sm" data-act="logout">Cerrar sesión</button>
+  </div>
+</header>
+
+<section id="login" aria-label="Inicio de sesión">
+  <div class="card loginCard" id="setupCard" hidden>
+    <h2>Configuración inicial</h2>
+    <p>Crea la cuenta de <b>administrador</b> (directivo). Con ella agregarás a más administradores y darás acceso al personal autorizado.</p>
+    <form id="formSetup" autocomplete="off">
+      <label>Tu nombre<input id="fs_nombre" required autocomplete="name"></label>
+      <label>Cargo (opcional)<input id="fs_cargo" placeholder="Ej. Directora"></label>
+      <label id="fs_emailW">Correo<input id="fs_email" type="email" required autocomplete="email" placeholder="nombre@escuela.mx"><small>Con este correo y tu contraseña entrarás desde cualquier dispositivo.</small></label>
+      <label>Contraseña<input id="fs_pw" type="password" required autocomplete="new-password"><small>Mínimo 6 caracteres. Elígela tú: la app no trae ninguna.</small></label>
+      <label>Repite la contraseña<input id="fs_pw2" type="password" required autocomplete="new-password"></label>
+      <label class="check" id="fs_muestraW"><input type="checkbox" id="fs_muestra" checked> Empezar con los datos de muestra (45 alumnos, 15 grupos, personal y horarios de ejemplo)</label>
+      <button class="primary" type="submit">Crear cuenta y entrar</button>
+    </form>
+    <div id="setupError" class="banner bad" role="alert" hidden></div>
+  </div>
+  <div class="card loginCard" id="loginCard">
+    <h2>Iniciar sesión</h2>
+    <div class="seg" role="tablist">
+      <button type="button" class="on" data-lt="personal">Personal autorizado</button>
+      <button type="button" data-lt="admin">Administrador</button>
+    </div>
+    <form id="formPersonal" autocomplete="off">
+      <label>Nombre<input id="lp_nombre" required autocomplete="off" placeholder="Como aparece en tu registro"></label>
+      <label>Puesto<select id="lp_puesto"></select></label>
+      <label>Código de acceso<input id="lp_codigo" required autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="12" placeholder="Te lo da un administrador"></label>
+      <button class="primary" type="submit">Entrar</button>
+    </form>
+    <form id="formAdmin" hidden>
+      <label>Correo<input id="la_nombre" type="email" required autocomplete="username" placeholder="nombre@escuela.mx"></label>
+      <label>Contraseña<input id="la_pw" type="password" required autocomplete="current-password"></label>
+      <label class="check"><input type="checkbox" id="la_ver"> Mostrar contraseña</label>
+      <button class="primary" type="submit">Entrar</button>
+    </form>
+    <div id="loginError" class="banner bad" role="alert" hidden></div>
+  </div>
+  <div class="card" id="loginAyuda"></div>
+  <div id="estadoNube" class="banner info" role="status" hidden></div>
+  <div class="card loginCard" id="sinConfigCard" hidden>
+    <h2>VISIONIX no está disponible</h2>
+    <p>La aplicación no está configurada para conectarse a su servidor. Avisa a quien administra el sistema.</p>
+  </div>
+</section>
+
+<nav id="nav">
+  <button data-tab="monitor">Monitor</button>
+  <button data-tab="alumnos">Alumnos</button>
+  <button data-tab="zonas">Zonas y cámaras</button>
+  <button data-tab="horarios">Horarios</button>
+  <button data-tab="personal">Personal y grupos</button>
+  <button data-tab="asistencia">Asistencia</button>
+  <button data-tab="notif">Notificaciones<span class="badge" id="badge" hidden>0</span></button>
+  <button data-tab="ajustes">Ajustes</button>
+</nav>
+
+<main>
+  <section id="tab-monitor" class="tab">
+    <div class="grid">
+      <div>
+        <div class="card">
+          <details open>
+            <summary><b>Cómo probarlo (1 minuto)</b></summary>
+            <ol style="margin:8px 0 0 18px;padding:0">
+              <li>En <b>Alumnos</b>, pulsa «Agregar alumno» con tu nombre (o «Registrar rostro» en uno de los de muestra) y sigue las indicaciones frente a la cámara.</li>
+              <li>En <b>Ajustes → Hora de prueba</b>, elige por ejemplo «Clase 1 · 07:03» para que el horario de muestra coincida con el momento de clase.</li>
+              <li>En <b>Monitor</b>, elige la cámara «Cámara Salón 1°1» (y que tu alumno sea del grupo 1°1) y pulsa «Iniciar cámara». Al reconocerte se marca tu asistencia, una sola vez al día.</li>
+              <li>Cambia a «Cámara Azotea» (restringida) o «Cámara Patio» (común, fuera de horario) para generar avisos.</li>
+              <li>Persona sin rostro registrado: en el Monitor elige «Persona no identificada» en el simulador. En horario de clase y en una zona normal solo deja un aviso <b>discreto</b> en la bandeja; en «Cámara Azotea», fuera de horario o en fin de semana (usa «Hora de prueba») el aviso es <b>llamativo</b>.</li>
+              <li>Para ver lo que recibe el personal: pulsa «Cerrar sesión» y entra como «Personal autorizado» con nombre, puesto y código (los códigos están en «Personal y grupos»; para ver los avisos llegar en vivo, abre VISIONIX en otro dispositivo o en una ventana de incógnito con esa sesión). Cada maestro solo recibe los avisos de los alumnos del grupo al que da clase en ese momento (en el panel «Ahora según el horario» ves qué maestro tiene cada grupo); la tutora de 1°1, la secretaria y el orientador de muestra reciben los de sus áreas.</li>
+            </ol>
+          </details>
+        </div>
+        <div class="card">
+          <h2>Cámara en vivo</h2>
+          <div class="row">
+            <label>Cámara de la red que representa
+              <select id="selCamara"></select>
+            </label>
+            <label>Dispositivo de video
+              <select id="selDispositivo"><option value="">Predeterminado</option></select>
+            </label>
+          </div>
+          <p id="camZonaInfo" class="muted"></p>
+          <div class="stage" id="stage">
+            <video id="video" playsinline muted></video>
+            <canvas id="overlay"></canvas>
+            <div id="stagePlaceholder">La cámara está apagada</div>
+          </div>
+          <div class="row">
+            <button id="btnCam" class="primary">Iniciar cámara y reconocimiento</button>
+            <span id="camEstado" class="muted"></span>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Bitácora de detecciones</h2>
+          <div id="bitacora" class="log"></div>
+        </div>
+      </div>
+      <div>
+        <div class="card" id="panelAhora"></div>
+        <div class="card">
+          <h2>Simulador (sin cámara)</h2>
+          <p class="muted">Dispara una detección como si la cámara seleccionada hubiera visto a esta persona. Sirve para probar reglas y notificaciones.</p>
+          <div class="row">
+            <label>Persona
+              <select id="simAlumno"></select>
+            </label>
+            <button id="btnSim" data-act="simular">Simular detección</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-alumnos" class="tab"></section>
+  <section id="tab-zonas" class="tab"></section>
+  <section id="tab-horarios" class="tab"></section>
+  <section id="tab-personal" class="tab"></section>
+  <section id="tab-asistencia" class="tab"></section>
+  <section id="tab-notif" class="tab"></section>
+  <section id="tab-ajustes" class="tab"></section>
+</main>
+
+<div id="modal" hidden></div>
+<div id="toasts" aria-live="polite"></div>
+
+<script src="config.js"></script>
+<script>/* VISIONIX – lógica central (sin DOM). Se usa en el navegador (global Core) y en Node (pruebas). */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.Core = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  const DEFAULT_CONFIG = {
+    cooldownSeg: 60,          // no repetir el mismo aviso (alumno+zona) antes de X segundos
+    confirmaciones: 3,        // detecciones seguidas necesarias antes de actuar
+    umbralDistancia: 0.5,     // distancia máxima para considerar que es la misma cara (menor = más estricto)
+    toleranciaRetardoMin: 10, // minutos tras el inicio del primer bloque del grupo para contar como retardo
+    minutosAntes: 15,         // minutos antes del inicio de clase en que ya se puede tomar asistencia
+    diasClase: [1, 2, 3, 4, 5],
+    avisarSinRegistro: true,  // aviso discreto cuando se ve a alguien sin rostro registrado en horario de clase
+    cooldownSinRegistroMin: 10 // ese aviso discreto no se repite por zona antes de X minutos
+  };
+
+  /* ---------- utilidades de tiempo ---------- */
+  const pad = (n) => String(n).padStart(2, '0');
+  const fechaKey = (d) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  const minDelDia = (d) => d.getHours() * 60 + d.getMinutes() + d.getSeconds() / 60;
+  const fmtHora = (d) => pad(d.getHours()) + ':' + pad(d.getMinutes());
+  function hhmmToMin(s) {
+    const m = /^(\d{1,2}):(\d{2})$/.exec(String(s || '').trim());
+    return m ? (+m[1]) * 60 + (+m[2]) : NaN;
+  }
+  const minToHHMM = (m) => pad(Math.floor(m / 60)) + ':' + pad(Math.round(m % 60));
+  function uid(prefix) {
+    return (prefix || 'id') + '_' + Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-4);
+  }
+  const byId = (list, id) => (list || []).find((x) => x.id === id) || null;
+  const unique = (arr) => Array.from(new Set(arr.filter(Boolean)));
+  const cfgOf = (db) => Object.assign({}, DEFAULT_CONFIG, db.config || {});
+
+  /** Hora actual de la simulación: reloj real + desfase configurable. */
+  function ahora(db) {
+    return new Date(Date.now() + ((db.reloj && db.reloj.offsetMs) || 0));
+  }
+
+  /* ---------- horas permitidas de una zona común ---------- */
+  function parseVentanas(texto) {
+    const ventanas = [];
+    const errores = [];
+    String(texto || '').split(/[,;\n]+/).map((s) => s.trim()).filter(Boolean).forEach((trozo) => {
+      const m = /^(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2})\s*(.*)$/.exec(trozo);
+      if (!m) { errores.push(trozo); return; }
+      const a = hhmmToMin(m[1]), b = hhmmToMin(m[2]);
+      if (isNaN(a) || isNaN(b) || b <= a || a < 0 || b > 24 * 60) { errores.push(trozo); return; }
+      ventanas.push({ inicio: minToHHMM(a), fin: minToHHMM(b), nombre: m[3].trim() });
+    });
+    return { ventanas, errores };
+  }
+  const formatVentanas = (v) => (v || []).map((x) => x.inicio + '-' + x.fin + (x.nombre ? ' ' + x.nombre : '')).join(', ');
+
+  function esDiaDeClase(db, fecha) { return cfgOf(db).diasClase.indexOf(fecha.getDay()) >= 0; }
+
+  function ventanaActual(db, zona, fecha) {
+    if (!zona || zona.tipo !== 'comun' || !esDiaDeClase(db, fecha)) return null;
+    const m = minDelDia(fecha);
+    return (zona.ventanas || []).find((v) => m >= hhmmToMin(v.inicio) && m < hhmmToMin(v.fin)) || null;
+  }
+
+  /* ---------- horario de clases ---------- */
+  function bloquesActivos(db, fecha, antes) {
+    const m = minDelDia(fecha), dia = fecha.getDay(), a = antes || 0;
+    return (db.horarios || []).filter((b) =>
+      (b.dias || []).indexOf(dia) >= 0 && m >= hhmmToMin(b.inicio) - a && m < hhmmToMin(b.fin));
+  }
+  const bloquesActivosDeGrupo = (db, grupoId, fecha) =>
+    bloquesActivos(db, fecha, 0).filter((b) => b.grupoId === grupoId);
+  const docentesDeGrupoAhora = (db, grupoId, fecha) =>
+    unique(bloquesActivosDeGrupo(db, grupoId, fecha).map((b) => b.docenteId));
+  function primerBloqueDelDia(db, grupoId, fecha) {
+    const dia = fecha.getDay();
+    const l = (db.horarios || []).filter((b) => b.grupoId === grupoId && (b.dias || []).indexOf(dia) >= 0)
+      .sort((x, y) => hhmmToMin(x.inicio) - hhmmToMin(y.inicio));
+    return l[0] || null;
+  }
+  function siguienteBloque(db, grupoId, fecha) {
+    const m = minDelDia(fecha), dia = fecha.getDay();
+    return (db.horarios || []).filter((b) => b.grupoId === grupoId && (b.dias || []).indexOf(dia) >= 0 && hhmmToMin(b.inicio) > m)
+      .sort((x, y) => hhmmToMin(x.inicio) - hhmmToMin(y.inicio))[0] || null;
+  }
+  /** Estado del horario por grupo en este momento (para el panel "Ahora"). */
+  function resumenHorario(db, fecha) {
+    return (db.grupos || []).map((g) => {
+      const b = bloquesActivosDeGrupo(db, g.id, fecha)[0] || null;
+      return {
+        grupo: g,
+        bloque: b,
+        docente: b ? byId(db.usuarios, b.docenteId) : null,
+        zona: b ? byId(db.zonas, b.zonaId) : null,
+        siguiente: b ? null : siguienteBloque(db, g.id, fecha)
+      };
+    });
+  }
+
+
+  /**
+   * ¿Ahora es horario de clase? Sirve para decidir qué tan llamativo es el aviso por una persona sin rostro registrado.
+   * El horario escolar de un día va desde el primer inicio de clase (menos «minutosAntes») o la primera hora permitida de una zona común (entrada)
+   * hasta el último fin de clase o la última hora permitida (salida). Los recesos entre clases cuentan como horario escolar.
+   * Devuelve { enHorario, motivo, texto }; motivo: null | 'fin_de_semana' | 'sin_clases' | 'antes' | 'despues'.
+   */
+  const NOMBRES_DIA = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+  function estadoHorarioEscolar(db, fecha) {
+    const dia = fecha.getDay(), cfg = cfgOf(db), m = minDelDia(fecha);
+    if (!esDiaDeClase(db, fecha)) {
+      return { enHorario: false, motivo: 'fin_de_semana', texto: dia === 0 || dia === 6 ? 'Es ' + NOMBRES_DIA[dia] + ': fin de semana, sin clases.' : 'Hoy (' + NOMBRES_DIA[dia] + ') no hay clases.' };
+    }
+    const ini = [], fin = [];
+    (db.horarios || []).forEach((b) => {
+      const a = hhmmToMin(b.inicio), z = hhmmToMin(b.fin);
+      if ((b.dias || []).indexOf(dia) >= 0 && !isNaN(a) && !isNaN(z)) { ini.push(a - cfg.minutosAntes); fin.push(z); }
+    });
+    if (!ini.length) return { enHorario: false, motivo: 'sin_clases', texto: 'No hay clases programadas hoy.' };
+    (db.zonas || []).forEach((z) => { if (z.tipo === 'comun') (z.ventanas || []).forEach((v) => { const a = hhmmToMin(v.inicio), b = hhmmToMin(v.fin); if (!isNaN(a) && !isNaN(b)) { ini.push(a); fin.push(b); } }); });
+    const desde = Math.max(0, Math.min.apply(null, ini)), hasta = Math.max.apply(null, fin);
+    if (m < desde) return { enHorario: false, motivo: 'antes', texto: 'Todavía no inicia el horario escolar (desde las ' + minToHHMM(desde) + ').' };
+    if (m >= hasta) return { enHorario: false, motivo: 'despues', texto: 'Ya terminó el horario escolar (a las ' + minToHHMM(hasta) + ').' };
+    return { enHorario: true, motivo: null, texto: '' };
+  }
+
+
+  /* ---------- acceso: administradores y personal autorizado (nombre + puesto + código). Las cuentas y contraseñas las maneja Supabase ---------- */
+  const PUESTOS = { maestro: 'Maestro/a', secretaria: 'Secretario/a', tutor: 'Tutor/a', orientador: 'Orientador/a' };
+  const esAdmin = (u) => !!u && u.rol === 'directivo';
+
+  function bytesAleatorios(n) {
+    const a = new Uint8Array(n);
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) crypto.getRandomValues(a);
+    else for (let i = 0; i < n; i++) a[i] = Math.floor(Math.random() * 256);
+    return a;
+  }
+  const validarPw = (pw) => (String(pw || '').length < 6 ? 'La contraseña debe tener al menos 6 caracteres.' : null);
+
+  const HONORIFICOS = ['prof', 'profa', 'profr', 'profra', 'mtro', 'mtra', 'lic', 'licda', 'dr', 'dra', 'ing', 'arq', 'sr', 'sra', 'srta', 'srita', 'subdir', 'dir'];
+  /** Compara nombres sin importar mayúsculas, acentos, espacios ni títulos (Prof., Lic., Dra.…). */
+  function normNombre(s) {
+    const partes = String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[.,]/g, ' ').replace(/\s+/g, ' ').trim().split(' ');
+    while (partes.length > 1 && HONORIFICOS.indexOf(partes[0]) >= 0) partes.shift();
+    return partes.join(' ');
+  }
+  const normCodigo = (s) => String(s || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const ALFABETO = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // 32 símbolos, sin I, O, 0 ni 1 para no confundir
+  function generarCodigo(db) {
+    const usados = new Set(((db && db.usuarios) || []).map((u) => normCodigo(u.codigo)).filter(Boolean));
+    for (;;) {
+      const b = bytesAleatorios(6); let c = '';
+      for (let i = 0; i < 6; i++) c += ALFABETO[b[i] & 31];
+      if (!usados.has(c)) return c;
+    }
+  }
+  const formatearCodigo = (c) => { const n = normCodigo(c); return n.length === 6 ? n.slice(0, 3) + '-' + n.slice(3) : n; };
+
+  /* ---------- destinatarios ---------- */
+  const idsDirectivos = (db) => (db.usuarios || []).filter((u) => u.rol === 'directivo').map((u) => u.id);
+  /** Tutores, secretarios y orientadores: reciben lo que ocurre en sus zonas o a los alumnos de sus grupos (áreas asignadas por un administrador). */
+  function idsConAreas(db, alumno, zona) {
+    return (db.usuarios || []).filter((u) => u.rol !== 'directivo' && u.rol !== 'maestro' && u.areas && (
+      (zona && (u.areas.zonas || []).indexOf(zona.id) >= 0) || (alumno && (u.areas.grupos || []).indexOf(alumno.grupoId) >= 0))).map((u) => u.id);
+  }
+  /** Administradores (todo) + maestros que dan clase AHORA al grupo del alumno + personal con esa zona o ese grupo asignado. */
+  function destinatariosPara(db, alumno, fecha, zona) {
+    const docentes = alumno ? docentesDeGrupoAhora(db, alumno.grupoId, fecha) : [];
+    return unique(idsDirectivos(db).concat(docentes, idsConAreas(db, alumno, zona)));
+  }
+  /** Bandeja de un usuario: los administradores ven todo; el personal autorizado solo lo que se le envió. */
+  function notificacionesPara(db, userId) {
+    const u = byId(db.usuarios, userId);
+    if (!u) return [];
+    const l = (db.notificaciones || []).filter((n) => u.rol === 'directivo' || (n.destinatarios || []).indexOf(userId) >= 0);
+    return l.slice().sort((a, b) => b.ts - a.ts);
+  }
+
+  /* ---------- motor de reglas ---------- */
+  function crearNotificacion(db, p) {
+    return {
+      id: uid('nt'), ts: p.ahora.getTime(), tipo: p.tipo, severidad: p.severidad,
+      titulo: p.titulo, detalle: p.detalle,
+      alumnoId: p.alumno ? p.alumno.id : null, grupoId: p.alumno ? p.alumno.grupoId : null,
+      zonaId: p.zona.id, camaraId: p.camara.id,
+      destinatarios: p.destinatarios, leidaPor: []
+    };
+  }
+
+  /**
+   * Procesa una detección ya confirmada.
+   * det = { camaraId, alumnoId|null }   (alumnoId null = persona no identificada)
+   * memo = { ultimo: {} } guarda cuándo se avisó por última vez (enfriamiento).
+   * Devuelve { asistencias:[], notificaciones:[], log:"texto" } sin modificar la BD.
+   */
+  function procesarDeteccion(db, det, fecha, memo) {
+    const cfg = cfgOf(db);
+    const out = { asistencias: [], notificaciones: [], log: '' };
+    const camara = byId(db.camaras, det.camaraId);
+    const zona = camara && byId(db.zonas, camara.zonaId);
+    if (!camara || !zona) { out.log = 'La cámara no tiene zona asignada: se ignora.'; return out; }
+    memo = memo || { ultimo: {} };
+    memo.ultimo = memo.ultimo || {};
+    const t = fecha.getTime(), hora = fmtHora(fecha);
+    const alumno = det.alumnoId ? byId(db.alumnos, det.alumnoId) : null;
+
+    const puedeAvisar = (clave, esperaMs) => {
+      const last = memo.ultimo[clave];
+      if (last != null && t - last < (esperaMs != null ? esperaMs : cfg.cooldownSeg * 1000)) return false;
+      memo.ultimo[clave] = t;
+      return true;
+    };
+    const avisar = (tipo, severidad, titulo, detalle, destinatarios) => {
+      out.notificaciones.push(crearNotificacion(db, { ahora: fecha, tipo, severidad, titulo, detalle, alumno, zona, camara, destinatarios }));
+    };
+
+    /* persona sin rostro registrado:
+       · llamativo (crítico) solo si está en zona restringida, fuera del horario de clase o en fin de semana;
+       · en cualquier otra zona y en horario de clase, un aviso discreto («sutil»): sin ventana emergente ni insignia, con enfriamiento largo. */
+    if (!alumno) {
+      const horario = estadoHorarioEscolar(db, fecha);
+      const destAdmin = unique(idsDirectivos(db).concat(idsConAreas(db, null, zona)));
+      if (zona.tipo === 'restringida' || !horario.enHorario) {
+        if (!puedeAvisar('desc:' + zona.id)) { out.log = 'Persona no identificada en ' + zona.nombre + ' (aviso reciente, en espera).'; return out; }
+        const donde = zona.nombre + ' · ' + camara.nombre + ' · ' + hora + '. No coincide con ningún alumno registrado.';
+        if (zona.tipo === 'restringida') {
+          avisar('restringida_desconocido', 'critica', 'Persona no identificada en zona restringida', donde + (horario.enHorario ? '' : ' ' + horario.texto), destAdmin);
+          out.log = 'Persona no identificada en zona restringida → aviso a administradores.';
+        } else {
+          avisar('desconocido_fuera_de_clase', 'critica', 'Persona no identificada fuera del horario de clase', donde + ' ' + horario.texto, destAdmin);
+          out.log = 'Persona no identificada fuera del horario de clase (' + horario.motivo.replace('_', ' ') + ') → aviso a administradores.';
+        }
+        return out;
+      }
+      if (cfg.avisarSinRegistro === false) { out.log = 'Persona sin rostro registrado en ' + zona.nombre + ': avisos discretos desactivados.'; return out; }
+      if (!puedeAvisar('sinreg:' + zona.id, Math.max(1, cfg.cooldownSinRegistroMin) * 60000)) { out.log = 'Persona sin rostro registrado en ' + zona.nombre + ' (ya se avisó hace poco, en espera).'; return out; }
+      avisar('sin_registro', 'sutil', 'Persona sin registro facial · ' + zona.nombre,
+        camara.nombre + ' · ' + hora + '. No coincide con ningún rostro registrado; si es un alumno, un administrador puede registrarlo.', destAdmin);
+      out.log = 'Persona sin rostro registrado en ' + zona.nombre + ' → aviso discreto.';
+      return out;
+    }
+
+    const grupo = byId(db.grupos, alumno.grupoId);
+    const gNombre = grupo ? grupo.nombre : 'sin grupo';
+
+    /* zona de clase → asistencia */
+    if (zona.tipo === 'clase') {
+      const hoy = fechaKey(fecha);
+      const aqui = bloquesActivos(db, fecha, cfg.minutosAntes).filter((b) => b.grupoId === alumno.grupoId && b.zonaId === zona.id);
+      if (aqui.length) {
+        if ((db.asistencias || []).some((a) => a.alumnoId === alumno.id && a.fecha === hoy)) {
+          out.log = alumno.nombre + ' ya tiene asistencia hoy: no se vuelve a registrar.';
+          return out;
+        }
+        const m = minDelDia(fecha);
+        const bloque = aqui.find((b) => m >= hhmmToMin(b.inicio) && m < hhmmToMin(b.fin)) ||
+          aqui.slice().sort((x, y) => hhmmToMin(x.inicio) - hhmmToMin(y.inicio))[0];
+        const primero = primerBloqueDelDia(db, alumno.grupoId, fecha) || bloque;
+        const tarde = Math.max(0, Math.round(m - hhmmToMin(primero.inicio)));
+        const estado = tarde > cfg.toleranciaRetardoMin ? 'retardo' : 'presente';
+        const reg = { id: uid('as'), alumnoId: alumno.id, fecha: hoy, ts: t, estado, zonaId: zona.id, camaraId: camara.id, bloqueId: bloque.id, minutosTarde: tarde };
+        out.asistencias.push(reg);
+        const dest = unique(idsDirectivos(db).concat([bloque.docenteId], idsConAreas(db, alumno, zona)));
+        avisar('asistencia', 'info',
+          alumno.nombre + ' · asistencia registrada' + (estado === 'retardo' ? ' (retardo)' : ''),
+          gNombre + ' · ' + bloque.materia + ' · ' + zona.nombre + ' · ' + hora +
+          (estado === 'retardo' ? ' · ' + tarde + ' min después del inicio del día' : ''), dest);
+        out.log = 'Asistencia registrada: ' + alumno.nombre + ' (' + estado + ').';
+        return out;
+      }
+      /* no es su salón en este momento */
+      const suyos = bloquesActivosDeGrupo(db, alumno.grupoId, fecha);
+      if (suyos.length) {
+        if (!puedeAvisar('fuera:' + alumno.id + ':' + zona.id)) { out.log = alumno.nombre + ' fuera de su salón (aviso reciente, en espera).'; return out; }
+        const b = suyos[0], zb = byId(db.zonas, b.zonaId);
+        avisar('fuera_de_salon', 'aviso', alumno.nombre + ' está fuera de su salón',
+          'Detectado en ' + zona.nombre + ' (' + camara.nombre + ') a las ' + hora + '. Su grupo ' + gNombre + ' tiene ' + b.materia +
+          (zb ? ' en ' + zb.nombre : '') + ' hasta las ' + b.fin + '.', destinatariosPara(db, alumno, fecha, zona));
+        out.log = alumno.nombre + ' está en un salón que no es el suyo → aviso.';
+      } else {
+        out.log = alumno.nombre + ' en ' + zona.nombre + ': su grupo no tiene clase ahora, sin acción.';
+      }
+      return out;
+    }
+
+    /* zona común → solo en las horas establecidas */
+    if (zona.tipo === 'comun') {
+      const v = ventanaActual(db, zona, fecha);
+      if (v) { out.log = alumno.nombre + ' en ' + zona.nombre + ' dentro de horario' + (v.nombre ? ' (' + v.nombre + ')' : '') + ': sin acción.'; return out; }
+      if (!puedeAvisar('comun:' + alumno.id + ':' + zona.id)) { out.log = alumno.nombre + ' en zona común fuera de horario (aviso reciente, en espera).'; return out; }
+      const enClase = bloquesActivosDeGrupo(db, alumno.grupoId, fecha)[0];
+      const permitido = formatVentanas(zona.ventanas) || 'ninguna definida';
+      avisar('comun_fuera_de_horario', 'aviso', alumno.nombre + ' en zona común fuera de horario',
+        zona.nombre + ' · ' + camara.nombre + ' · ' + hora + '. Horas permitidas: ' + permitido + '.' +
+        (enClase ? ' Su grupo ' + gNombre + ' está en ' + enClase.materia + '.' : ''), destinatariosPara(db, alumno, fecha, zona));
+      out.log = alumno.nombre + ' en zona común fuera de horario → aviso.';
+      return out;
+    }
+
+    /* zona restringida → nunca */
+    if (zona.tipo === 'restringida') {
+      if (!puedeAvisar('restr:' + alumno.id + ':' + zona.id)) { out.log = alumno.nombre + ' en zona restringida (aviso reciente, en espera).'; return out; }
+      avisar('restringida', 'critica', alumno.nombre + ' en zona restringida',
+        zona.nombre + ' · ' + camara.nombre + ' · ' + hora + ' · ' + gNombre + '.', destinatariosPara(db, alumno, fecha, zona));
+      out.log = alumno.nombre + ' en zona restringida → aviso.';
+      return out;
+    }
+    out.log = 'Tipo de zona desconocido.';
+    return out;
+  }
+
+  /* ---------- asistencia ---------- */
+  function asistenciaDelDia(db, fecha, grupoId) {
+    const hoy = fechaKey(fecha);
+    return (db.alumnos || []).filter((a) => !grupoId || a.grupoId === grupoId).map((a) => {
+      const reg = (db.asistencias || []).find((r) => r.alumnoId === a.id && r.fecha === hoy) || null;
+      return { alumno: a, registro: reg };
+    });
+  }
+
+  /* ---------- datos de muestra ---------- */
+  const NOMBRES = ['Ana Sofía', 'Luis Ángel', 'Valeria', 'Diego', 'Camila', 'Mateo', 'Regina', 'Emiliano', 'Daniela', 'Santiago',
+    'Fernanda', 'Sebastián', 'Mariana', 'Leonardo', 'Ximena', 'Adrián', 'Renata', 'Gael', 'Paola', 'Iker',
+    'Andrea', 'Bruno', 'Jimena', 'Emilio', 'Natalia', 'Dylan', 'Isabella', 'Axel', 'Karla', 'Rodrigo'];
+  const APELLIDOS = ['Hernández', 'García', 'Martínez', 'Ramírez', 'Rojas', 'Sánchez', 'Flores', 'Cruz', 'López', 'González',
+    'Pérez', 'Torres', 'Morales', 'Reyes', 'Jiménez', 'Vázquez', 'Castillo', 'Mendoza', 'Ortiz', 'Silva',
+    'Guerrero', 'Navarro', 'Salazar', 'Cortés', 'Ibáñez'];
+  const MAESTROS = [
+    ['Prof. Jorge Medina', 'Matemáticas'], ['Profa. Elena Torres', 'Lengua y comunicación'], ['Prof. Raúl Núñez', 'Física'],
+    ['Profa. Claudia Vega', 'Historia'], ['Prof. Marcos Ibarra', 'Inglés'], ['Profa. Lucía Arellano', 'Química'],
+    ['Prof. Héctor Domínguez', 'Matemáticas'], ['Profa. Sofía Camacho', 'Biología'], ['Prof. Andrés Pineda', 'Informática'],
+    ['Profa. Gabriela Ochoa', 'Geografía'], ['Prof. Ricardo Salinas', 'Ética y valores'], ['Profa. Paulina Ríos', 'Inglés'],
+    ['Prof. Fernando Aguilar', 'Educación física'], ['Profa. Verónica Lara', 'Literatura'], ['Prof. Tomás Escobar', 'Filosofía']
+  ];
+
+  /** Preparatoria: 3 años × 5 grupos (1°1…1°5, 2°1…2°5, 3°1…3°5), cada uno con su salón y su cámara. */
+  function datosMuestra() {
+    const DIAS = [1, 2, 3, 4, 5];
+    const orden = [], grupos = [], zonas = [], camaras = [], alumnos = [], horarios = [];
+    for (let y = 1; y <= 3; y++) for (let n = 1; n <= 5; n++) orden.push({ id: 'g' + y + n, nombre: y + '°' + n, zona: 'z_s' + y + n });
+    orden.forEach((g, gi) => {
+      grupos.push({ id: g.id, nombre: g.nombre });
+      zonas.push({ id: g.zona, nombre: 'Salón ' + g.nombre, tipo: 'clase', ventanas: [] });
+      camaras.push({ id: 'c_' + g.zona.slice(2), nombre: 'Cámara Salón ' + g.nombre, zonaId: g.zona });
+      for (let k = 0; k < 3; k++) {
+        const i = gi * 3 + k;
+        const a1 = APELLIDOS[(i * 7) % APELLIDOS.length];
+        let a2 = APELLIDOS[(i * 11 + 3) % APELLIDOS.length];
+        if (a2 === a1) a2 = APELLIDOS[(i * 11 + 4) % APELLIDOS.length];
+        alumnos.push({
+          id: 'a' + (i + 1), nombre: NOMBRES[i % NOMBRES.length] + ' ' + a1 + ' ' + a2,
+          matricula: '2026-' + g.nombre.replace('°', '') + '-' + pad(k + 1), grupoId: g.id, descriptores: []
+        });
+      }
+    });
+
+    const horas = '06:40-07:00 Entrada, 10:30-11:00 Receso, 12:40-13:10 Salida';
+    const comun = (id, nombre) => ({ id, nombre, tipo: 'comun', ventanas: parseVentanas(horas).ventanas });
+    zonas.push(comun('z_patio', 'Patio'), comun('z_cancha', 'Cancha'), comun('z_pasillo1', 'Pasillo planta baja'), comun('z_pasillo2', 'Pasillo planta alta'),
+      { id: 'z_azotea', nombre: 'Azotea', tipo: 'restringida', ventanas: [] },
+      { id: 'z_bodega', nombre: 'Bodega', tipo: 'restringida', ventanas: [] });
+    camaras.push(
+      { id: 'c_patio', nombre: 'Cámara Patio', zonaId: 'z_patio' }, { id: 'c_cancha', nombre: 'Cámara Cancha', zonaId: 'z_cancha' },
+      { id: 'c_pasillo1', nombre: 'Cámara Pasillo planta baja', zonaId: 'z_pasillo1' }, { id: 'c_pasillo2', nombre: 'Cámara Pasillo planta alta', zonaId: 'z_pasillo2' },
+      { id: 'c_azotea', nombre: 'Cámara Azotea', zonaId: 'z_azotea' }, { id: 'c_bodega', nombre: 'Cámara Bodega', zonaId: 'z_bodega' });
+
+    /* Sin administradores de muestra: al abrir la app por primera vez, la persona crea su cuenta de administrador con su propia contraseña. */
+    const usuarios = MAESTROS.map((m, i) => ({ id: 'u_m' + (i + 1), nombre: m[0], detalle: m[1], rol: 'maestro', areas: { grupos: [], zonas: [] } })).concat(
+      [
+        { id: 'u_sec1', nombre: 'Lic. Rosa Ibáñez', detalle: 'Recepción', rol: 'secretaria', areas: { grupos: [], zonas: ['z_patio', 'z_pasillo1'] } },
+        { id: 'u_tut1', nombre: 'Mtra. Alicia Fuentes', detalle: 'Tutora de 1°1', rol: 'tutor', areas: { grupos: ['g11'], zonas: [] } },
+        { id: 'u_ori1', nombre: 'Lic. Omar Duarte', detalle: 'Orientación primer año', rol: 'orientador', areas: { grupos: ['g12', 'g13'], zonas: [] } }
+      ]);
+    usuarios.forEach((u) => { if (!esAdmin(u)) u.codigo = generarCodigo({ usuarios }); });
+
+    /* 6 clases al día por grupo; en cada hora los 15 maestros dan clase a 15 grupos distintos (sin choques) */
+    const slots = [['07:00', '07:50'], ['07:50', '08:40'], ['08:40', '09:30'], ['09:30', '10:20'], ['11:00', '11:50'], ['11:50', '12:40']];
+    orden.forEach((g, gi) => slots.forEach((s, si) => {
+      const t = (gi + si) % MAESTROS.length;
+      horarios.push({ id: 'h_' + g.id + '_' + (si + 1), grupoId: g.id, dias: DIAS.slice(), inicio: s[0], fin: s[1], materia: MAESTROS[t][1], docenteId: 'u_m' + (t + 1), zonaId: g.zona });
+    }));
+
+    return {
+      version: 3, config: Object.assign({}, DEFAULT_CONFIG), reloj: { offsetMs: 0 },
+      grupos, usuarios, alumnos, zonas, camaras, horarios, asistencias: [], notificaciones: []
+    };
+  }
+
+  return {
+    DEFAULT_CONFIG, uid, byId, unique, cfgOf, pad, fechaKey, minDelDia, fmtHora, hhmmToMin, minToHHMM, ahora,
+    parseVentanas, formatVentanas, esDiaDeClase, ventanaActual,
+    estadoHorarioEscolar, bloquesActivos, bloquesActivosDeGrupo, docentesDeGrupoAhora, primerBloqueDelDia, siguienteBloque, resumenHorario,
+    idsDirectivos, idsConAreas, destinatariosPara, notificacionesPara, procesarDeteccion, asistenciaDelDia, datosMuestra,
+    PUESTOS, esAdmin, validarPw, normNombre, normCodigo, generarCodigo, formatearCodigo
+  };
+});
+</script>
+<script>/* VISIONIX – capa de datos de la nube (Supabase). Lógica pura, sin red ni DOM: se prueba en Node y se usa en el navegador (global Nube).
+   Idea: la app trabaja siempre con su objeto «db» en memoria. Cada elemento de cada lista es una fila de la nube (id + data jsonb).
+   Aquí se decide QUÉ enviar (solo lo que cambió) y CÓMO mezclar lo que llega (sin pisar lo que esta persona acaba de editar). */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./core.js'));
+  else root.Nube = factory(root.Core);
+})(typeof self !== 'undefined' ? self : this, function (Core) {
+  'use strict';
+
+  /** Listas de la app que viven en tablas con el mismo nombre. */
+  const LISTAS = ['grupos', 'zonas', 'camaras', 'horarios', 'alumnos', 'asistencias', 'notificaciones', 'usuarios'];
+  /** Todas las tablas que se descargan (las listas + «ajustes», que guarda config y reloj). */
+  const TABLAS = LISTAS.concat(['ajustes']);
+  /** Solo se agregan o se borran, nunca se editan (si dos dispositivos coinciden, manda lo que ya está en la nube). */
+  const SOLO_AGREGAR = { asistencias: true, notificaciones: true };
+  const AJUSTES = ['config', 'reloj'];
+
+  /* ---------- utilidades ---------- */
+  /** JSON con las claves ordenadas: así dos objetos iguales dan siempre el mismo texto (jsonb reordena las claves). */
+  function canon(x) {
+    if (x === undefined) return 'null';
+    if (Array.isArray(x)) return '[' + x.map(canon).join(',') + ']';
+    if (x && typeof x === 'object') return '{' + Object.keys(x).sort().filter((k) => x[k] !== undefined).map((k) => JSON.stringify(k) + ':' + canon(x[k])).join(',') + '}';
+    return JSON.stringify(x);
+  }
+  const clonar = (x) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
+  const unicos = (a) => Array.from(new Set(a));
+
+  /** Normaliza lo que viene de la nube para una tabla de ajustes (se completa con los valores por defecto). */
+  function ajusteNormal(id, data) {
+    if (id === 'config') return Object.assign({}, Core.DEFAULT_CONFIG, data || {});
+    return Object.assign({ offsetMs: 0 }, data || {});
+  }
+
+  /* ---------- fila <-> elemento ---------- */
+  /** Convierte un elemento de la app en la fila que se guarda en la nube. */
+  function filaDeItem(tabla, item, op) {
+    const fotos = !!(op && op.fotos);
+    const data = clonar(item);
+    if (tabla === 'usuarios') {
+      delete data.pw;                      // las contraseñas viven en Supabase Auth, nunca aquí
+      return {
+        id: item.id, data,
+        nombre_norm: Core.normNombre(item.nombre), puesto: String(item.rol || ''),
+        codigo_norm: Core.esAdmin(item) ? '' : Core.normCodigo(item.codigo)
+      };
+    }
+    if (SOLO_AGREGAR[tabla] && !fotos) delete data.foto; // la miniatura de la cámara solo sube si el administrador lo activa
+    return { id: item.id, data };
+  }
+  /** Lo contrario: el elemento que usa la app. */
+  function itemDeFila(tabla, fila) {
+    return Object.assign({}, clonar(fila.data), { id: fila.id });
+  }
+  /** Lo que se compara para saber si algo cambió (sin «orden» ni columnas derivadas, que no forman parte del elemento). */
+  function huella(tabla, fila) { return canon({ data: fila.data }); } // las columnas de acceso de «usuarios» se derivan de «data»
+  const huellaDeItem = (tabla, item, op) => huella(tabla, filaDeItem(tabla, item, op));
+
+  /* ---------- estado de sincronización ---------- */
+  /** base[tabla]: id -> huella de lo que sabemos que hay en la nube. orden[tabla]: id -> posición en la lista. */
+  function crearEstado() { return { base: {}, orden: {} }; }
+  const mapa = (o, t) => (o[t] || (o[t] = new Map()));
+
+  /** Base de datos local vacía (nada de datos de muestra: lo que se vea viene de la nube). */
+  function dbVacia() {
+    const d = { version: 3, config: Object.assign({}, Core.DEFAULT_CONFIG), reloj: { offsetMs: 0 } };
+    LISTAS.forEach((t) => { d[t] = []; });
+    return d;
+  }
+
+  function reemplazarEnSitio(destino, nuevo) {
+    Object.keys(destino).forEach((k) => { delete destino[k]; });
+    Object.assign(destino, nuevo);
+  }
+  function ordenar(lista, ord) {
+    if (!ord.size) return;
+    const pos = new Map(lista.map((x, i) => [x, i]));
+    lista.sort((a, b) => {
+      const oa = ord.has(a.id) ? ord.get(a.id) : Infinity, ob = ord.has(b.id) ? ord.get(b.id) : Infinity;
+      if (oa !== ob) return oa < ob ? -1 : 1;
+      return pos.get(a) - pos.get(b);
+    });
+  }
+
+  /**
+   * Mezcla filas que llegan de la nube con la base local.
+   *   completa=true: «filas» es TODO lo que esta persona puede ver de esa tabla (lo que falte se borró en la nube).
+   *   completa=false: «filas» son cambios sueltos (tiempo real).
+   * Una fila que esta persona editó y todavía no se envió NO se pisa (se enviará y gana lo último que se envió).
+   * Devuelve true si algo cambió en pantalla.
+   */
+  function fusionar(db, est, tabla, filas, op) {
+    op = op || {};
+    const base = mapa(est.base, tabla), ord = mapa(est.orden, tabla);
+    let cambio = false;
+
+    if (tabla === 'ajustes') {
+      filas.forEach((f) => {
+        if (AJUSTES.indexOf(f.id) < 0) return;
+        const nuevo = ajusteNormal(f.id, f.data), cr = canon(nuevo), loc = db[f.id];
+        const sucio = base.has(f.id) && canon(loc) !== base.get(f.id);
+        if (!sucio && canon(loc) !== cr) { reemplazarEnSitio(loc, nuevo); cambio = true; }
+        base.set(f.id, cr);
+      });
+      return cambio;
+    }
+
+    const lista = db[tabla];
+    const locales = new Map(lista.map((x) => [x.id, x]));
+    const remotas = new Set();
+    filas.forEach((f) => {
+      remotas.add(f.id);
+      if (typeof f.orden === 'number') ord.set(f.id, f.orden);
+      const cr = huella(tabla, f), loc = locales.get(f.id);
+      if (!loc) {
+        if (base.has(f.id)) return;                       // ya lo teníamos y falta aquí: se borró en este dispositivo y el borrado aún no se envió -> no resucitarlo
+        lista.push(itemDeFila(tabla, f)); base.set(f.id, cr); cambio = true; return;
+      }
+      const cl = huellaDeItem(tabla, loc, op);
+      const sucio = !SOLO_AGREGAR[tabla] && base.has(f.id) && cl !== base.get(f.id);
+      if (!sucio && cl !== cr) {
+        const nuevo = itemDeFila(tabla, f);
+        if (loc.foto && !nuevo.foto) nuevo.foto = loc.foto;                       // la miniatura local se conserva
+        if (tabla === 'notificaciones') nuevo.leidaPor = unicos((nuevo.leidaPor || []).concat(loc.leidaPor || [])); // un «leído» propio aún sin enviar no se pierde
+        if (canon(nuevo) !== canon(loc)) { reemplazarEnSitio(loc, nuevo); cambio = true; }
+      }
+      base.set(f.id, cr);
+    });
+
+    if (op.completa) {
+      for (let i = lista.length - 1; i >= 0; i--) {
+        const x = lista[i];
+        if (!remotas.has(x.id) && base.has(x.id)) { lista.splice(i, 1); base.delete(x.id); ord.delete(x.id); cambio = true; }
+      }
+      Array.from(base.keys()).forEach((id) => { if (!remotas.has(id)) { base.delete(id); ord.delete(id); } });
+    }
+    if (cambio || filas.some((f) => typeof f.orden === 'number')) ordenar(lista, ord);
+    return cambio;
+  }
+
+  /** Un elemento se borró en la nube (evento DELETE de tiempo real). */
+  function quitar(db, est, tabla, id) {
+    if (tabla === 'ajustes') return false;
+    const lista = db[tabla], i = lista.findIndex((x) => x.id === id);
+    mapa(est.base, tabla).delete(id); mapa(est.orden, tabla).delete(id);
+    if (i < 0) return false;
+    lista.splice(i, 1);
+    return true;
+  }
+
+  /* ---------- qué enviar ---------- */
+  const leidaPorEnBase = (est, id) => {
+    const h = mapa(est.base, 'notificaciones').get(id);
+    if (!h) return null;
+    try { return JSON.parse(h).data.leidaPor || []; } catch (e) { return []; }
+  };
+
+  /**
+   * Compara la base local con lo que sabemos de la nube y devuelve el plan de envío:
+   *   inserts[tabla]  filas nuevas de asistencias/notificaciones (si ya existen en la nube no se tocan)
+   *   upserts[tabla]  filas nuevas o editadas del resto de tablas
+   *   borrar[tabla]   ids que ya no existen localmente
+   *   leidas          ids de avisos que esta persona marcó como leídos
+   * op: { rol:'admin'|'personal', yo: id de la persona, fotos, ahora }.  El personal autorizado solo puede marcar como leídos.
+   */
+  function planificarEnvio(db, est, op) {
+    const plan = { inserts: {}, upserts: {}, borrar: {}, leidas: [] };
+    const admin = op.rol === 'admin';
+    let n = 0;
+    const t0 = (op.ahora || Date.now()) * 1000;
+
+    (db.notificaciones || []).forEach((x) => {
+      const ya = leidaPorEnBase(est, x.id);
+      if (ya && (x.leidaPor || []).indexOf(op.yo) >= 0 && ya.indexOf(op.yo) < 0) plan.leidas.push(x.id);
+    });
+    if (!admin) return plan;
+
+    const agregar = (dic, tabla, fila) => { (dic[tabla] || (dic[tabla] = [])).push(fila); };
+    TABLAS.forEach((tabla) => {
+      const base = mapa(est.base, tabla);
+      if (tabla === 'ajustes') {
+        AJUSTES.forEach((id) => {
+          const fila = { id, data: clonar(db[id]) };
+          if (!base.has(id) || base.get(id) !== canon(db[id])) agregar(plan.upserts, 'ajustes', fila);
+        });
+        return;
+      }
+      const vistos = new Set();
+      (db[tabla] || []).forEach((x) => {
+        vistos.add(x.id);
+        const fila = filaDeItem(tabla, x, op), h = huella(tabla, fila);
+        if (!base.has(x.id)) { fila.orden = t0 + (n++); agregar(SOLO_AGREGAR[tabla] ? plan.inserts : plan.upserts, tabla, fila); }
+        else if (!SOLO_AGREGAR[tabla] && base.get(x.id) !== h) agregar(plan.upserts, tabla, fila);
+      });
+      base.forEach((_, id) => { if (!vistos.has(id)) agregar(plan.borrar, tabla, id); });
+    });
+    return plan;
+  }
+
+  /** Lo enviado se dio por bueno: la base local pasa a coincidir con lo que se mandó. */
+  function confirmarEnvio(db, est, plan, op) {
+    ['inserts', 'upserts'].forEach((k) => {
+      Object.keys(plan[k]).forEach((tabla) => {
+        const base = mapa(est.base, tabla), ord = mapa(est.orden, tabla);
+        plan[k][tabla].forEach((f) => {
+          base.set(f.id, tabla === 'ajustes' ? canon(ajusteNormal(f.id, f.data)) : huella(tabla, f));
+          if (typeof f.orden === 'number') ord.set(f.id, f.orden);
+        });
+      });
+    });
+    Object.keys(plan.borrar).forEach((tabla) => plan.borrar[tabla].forEach((id) => { mapa(est.base, tabla).delete(id); mapa(est.orden, tabla).delete(id); }));
+    (plan.leidas || []).forEach((id) => {
+      const x = (db.notificaciones || []).find((y) => y.id === id);
+      if (x) mapa(est.base, 'notificaciones').set(id, huellaDeItem('notificaciones', x, op));
+    });
+  }
+  function planVacio(plan) {
+    return !plan.leidas.length && ['inserts', 'upserts', 'borrar'].every((k) => !Object.keys(plan[k]).length);
+  }
+
+  /* ---------- configuración de conexión y mensajes ---------- */
+  /** Dirección del proyecto de Supabase: https://xxxx.supabase.co (también se admite http solo en localhost). */
+  function normalizarUrl(txt) {
+    let s = String(txt || '').trim();
+    if (!s) return { error: 'Escribe la URL del proyecto.' };
+    if (!/^https?:\/\//i.test(s)) s = 'https://' + s;
+    let u; try { u = new URL(s); } catch (e) { return { error: 'La URL no es válida.' }; }
+    const local = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(u.hostname);
+    if (u.protocol === 'http:' && !local) return { error: 'La URL debe empezar con https://.' };
+    if (!local && !/\./.test(u.hostname)) return { error: 'La URL no parece la de un proyecto de Supabase.' };
+    return { url: u.origin };
+  }
+  function decodificarJwt(t) {
+    try {
+      const p = String(t).split('.');
+      if (p.length !== 3) return null;
+      const b64 = p[1].replace(/-/g, '+').replace(/_/g, '/'), pad = b64 + '='.repeat((4 - (b64.length % 4)) % 4);
+      const txt = typeof atob === 'function' ? atob(pad) : Buffer.from(pad, 'base64').toString('binary');
+      return JSON.parse(decodeURIComponent(txt.split('').map((c) => '%' + c.charCodeAt(0).toString(16).padStart(2, '0')).join('')));
+    } catch (e) { return null; }
+  }
+  /** La clave PÚBLICA del proyecto («anon» o «publishable»). Las claves secretas se rechazan: nunca deben ir en una app. */
+  function validarClave(txt) {
+    const k = String(txt || '').trim();
+    if (!k) return { error: 'Pega la clave pública (anon / publishable) del proyecto.' };
+    if (/\s/.test(k)) return { error: 'La clave no debe tener espacios.' };
+    if (/^sb_secret_/i.test(k)) return { error: 'Esa es una clave SECRETA. No la pegues aquí: usa la clave pública («publishable»).' };
+    if (/^sb_publishable_/i.test(k)) return { clave: k };
+    const p = decodificarJwt(k);
+    if (!p) return { error: 'La clave no parece válida. Usa la «anon public» o la «publishable» de Settings → API.' };
+    if (p.role === 'service_role') return { error: 'Esa es la clave SECRETA (service_role). No la pegues aquí: usa la clave «anon public».' };
+    if (p.role && p.role !== 'anon') return { error: 'Esa clave no es la pública («anon»).' };
+    return { clave: k };
+  }
+  const emailValido = (s) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(s || '').trim());
+
+  /** Mensajes de Supabase / red traducidos a algo que entienda quien usa la app. */
+  function traducirError(e) {
+    const m = String((e && (e.message || e.error_description || e.msg)) || e || '');
+    const code = String((e && (e.code || e.error_code)) || '');
+    if (/failed to fetch|networkerror|load failed|network request failed|fetch failed/i.test(m)) return 'Sin conexión con el servidor. Revisa tu internet.';
+    if (/invalid login credentials/i.test(m)) return 'Correo o contraseña incorrectos.';
+    if (/email not confirmed/i.test(m)) return 'Ese correo aún no está confirmado.';
+    if (/already registered|already been registered|user_already_exists/i.test(m + code)) return 'Ya existe una cuenta con ese correo.';
+    if (/anonymous sign-ins are disabled|anonymous_provider_disabled/i.test(m + code)) return 'El servidor no permite el acceso del personal autorizado (error de configuración del servidor).';
+    if (/signups? not allowed|signup_disabled/i.test(m + code)) return 'El servidor no permite crear cuentas nuevas (error de configuración del servidor).';
+    if (/rate limit|too many requests|over_.*rate_limit/i.test(m + code)) return 'Demasiados intentos seguidos. Espera un momento y vuelve a probar.';
+    if (/password should be at least|weak_password/i.test(m + code)) return 'La contraseña es demasiado débil (mínimo 6 caracteres).';
+    if (/invalid api key|apikey/i.test(m)) return 'La aplicación no se pudo identificar ante el servidor (error de configuración).';
+    if (/could not find the (table|function)|schema cache|PGRST20[2-5]|42P01|relation .* does not exist/i.test(m + code)) return 'La base de datos del servidor no está lista (error de configuración del servidor).';
+    if (/ya existe un administrador/i.test(m)) return 'Ya existe un administrador: inicia sesión con su correo.';
+    if (/al menos un administrador/i.test(m)) return 'Debe quedar al menos un administrador.';
+    if (/row-level security|permission denied|42501/i.test(m + code)) return 'Sin permiso para hacer eso con esta cuenta.';
+    return m || 'Error desconocido.';
+  }
+
+  return {
+    LISTAS, TABLAS, SOLO_AGREGAR, AJUSTES, canon, filaDeItem, itemDeFila, huella, crearEstado, dbVacia,
+    fusionar, quitar, planificarEnvio, confirmarEnvio, planVacio,
+    normalizarUrl, validarClave, decodificarJwt, emailValido, traducirError
+  };
+});
+</script>
+<script>/* VISIONIX – interfaz (navegador). Depende de Core (core.js) y, para reconocimiento facial, de face-api. */
+(function () {
+  'use strict';
+  const C = Core;
+  const N = Nube;
+  const $ = (s, el) => (el || document).querySelector(s);
+  const $$ = (s, el) => Array.from((el || document).querySelectorAll(s));
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const byId = C.byId;
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const DIAS_NOMBRE = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+  const TIPOS = { clase: 'Zona de clase (toma asistencia)', comun: 'Zona común (alumnos en horas establecidas)', restringida: 'Zona restringida (ningún alumno)' };
+  const TIPO_CORTO = { clase: 'clase', comun: 'común', restringida: 'restringida' };
+
+  /* ---------- estado y configuración ---------- */
+  const ss = {
+    get(k) { try { return sessionStorage.getItem('me_' + k); } catch (e) { return null; } },
+    set(k, v) { try { sessionStorage.setItem('me_' + k, v); } catch (e) { /* sin sessionStorage */ } },
+    del(k) { try { sessionStorage.removeItem('me_' + k); } catch (e) { /* sin sessionStorage */ } }
+  };
+  function normalizar(d) {
+    d.config = Object.assign({}, C.DEFAULT_CONFIG, d.config || {});
+    d.reloj = d.reloj || { offsetMs: 0 };
+    ['grupos', 'usuarios', 'zonas', 'camaras', 'horarios', 'asistencias', 'notificaciones'].forEach((k) => { d[k] = d[k] || []; });
+    return d;
+  }
+  /* VISIONIX trabaja SIEMPRE con una base de datos en Supabase: los datos viven allí y no en este dispositivo.
+     La URL y la clave pública del proyecto no se piden en pantalla: las trae el archivo de configuración (config.js). */
+  function leerConfigNube() {
+    const c = window.VISIONIX_CONFIG;
+    if (!c || !String(c.url || '').trim() || !String(c.clave || '').trim()) return { cfg: null, error: 'Falta la configuración del servidor (url y clave).' };
+    const u = N.normalizarUrl(c.url); if (u.error) return { cfg: null, error: 'Configuración del servidor: ' + u.error };
+    const k = N.validarClave(c.clave); if (k.error) return { cfg: null, error: 'Configuración del servidor: ' + k.error };
+    return { cfg: { url: u.url, clave: k.clave } };
+  }
+  const configNube = leerConfigNube();
+  const nube = {
+    cfg: configNube.cfg, errorCfg: configNube.error || '', cli: null, estado: 'apagado', detalle: '', rol: null, yo: null, est: N.crearEstado(), hayAdmin: null,
+    canal: null, canalOk: false, redOk: true, presencia: 0, pushT: null, pollT: null, enviando: false, otraVez: false, reintentos: 0,
+    pulling: false, saliendo: null, errorEnvio: '', clave: 'd' + Math.random().toString(36).slice(2, 10)
+  };
+  if (!nube.cfg) console.error('VISIONIX: ' + nube.errorCfg);
+  let db = N.dbVacia();
+  function guardar() { if (nube.cfg) nubeProgramar(); }   // los cambios se envían a Supabase; nada se guarda en este dispositivo
+  /** Mensaje para la pantalla; el detalle técnico queda en la consola del navegador. */
+  function msgError(e) { try { console.warn('VISIONIX:', e); } catch (x) { /* sin consola */ } return N.traducirError(e); }
+
+  const TABS_ADMIN = ['monitor', 'alumnos', 'zonas', 'horarios', 'personal', 'asistencia', 'notif', 'ajustes'];
+  const ui = { tab: ss.get('tab') || 'monitor', userId: null, camaraId: ss.get('cam'), deviceId: null };
+  const memo = { ultimo: {} };
+  const rt = { libReady: false, libEstado: 'cargando', matcher: null, running: false, paused: false, stream: null, timer: null,
+    streak: {}, lastCall: {}, bitacora: [], mirror: true, enrolToken: 0, enrolPend: null };
+
+  /* ---------- utilidades de interfaz ---------- */
+  const ahora = () => C.ahora(db);
+  const nombreUsuario = (id) => (byId(db.usuarios, id) || { nombre: '(borrado)' }).nombre;
+  const nombreAlumno = (id) => (byId(db.alumnos, id) || { nombre: '(borrado)' }).nombre;
+  const nombreGrupo = (id) => (byId(db.grupos, id) || { nombre: 'sin grupo' }).nombre;
+  const nombreZona = (id) => (byId(db.zonas, id) || { nombre: '(sin zona)' }).nombre;
+  const fmtFechaHora = (ts) => { const d = new Date(ts); return C.pad(d.getDate()) + '/' + C.pad(d.getMonth() + 1) + ' ' + C.pad(d.getHours()) + ':' + C.pad(d.getMinutes()) + ':' + C.pad(d.getSeconds()); };
+  const fotoValida = (f) => typeof f === 'string' && /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(f);
+
+  function toast(msg, tipo) {
+    const el = document.createElement('div');
+    el.className = 'toast ' + (tipo || '');
+    el.textContent = msg;
+    $('#toasts').appendChild(el);
+    setTimeout(() => el.remove(), tipo === 'critica' ? 9000 : 5500);
+  }
+  function abrirModal(html) { const m = $('#modal'); m.innerHTML = '<div class="modal">' + html + '</div>'; m.hidden = false; }
+  function cerrarModal() { const m = $('#modal'); m.hidden = true; m.innerHTML = ''; }
+  function confirmar(texto, alAceptar) {
+    abrirModal('<p>' + esc(texto) + '</p><div class="row"><button data-act="modal-cerrar">Cancelar</button><button class="primary" data-act="confirmar-ok">Aceptar</button></div>');
+    rt.onConfirm = alAceptar;
+  }
+  const optsGrupos = (sel) => db.grupos.map((g) => '<option value="' + g.id + '"' + (g.id === sel ? ' selected' : '') + '>' + esc(g.nombre) + '</option>').join('');
+  const optsZonas = (sel, tipo) => db.zonas.filter((z) => !tipo || z.tipo === tipo).map((z) => '<option value="' + z.id + '"' + (z.id === sel ? ' selected' : '') + '>' + esc(z.nombre) + '</option>').join('');
+  const esAdminSesion = () => C.esAdmin(byId(db.usuarios, ui.userId));
+  const etiquetaPuesto = (u) => (C.esAdmin(u) ? 'Administrador' : (C.PUESTOS[u.rol] || u.rol));
+  function copiarTexto(texto, okMsg) {
+    const ta = document.createElement('textarea'); ta.value = texto; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;opacity:0;left:-999px';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    let ok = false; try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    ta.remove();
+    if (ok) { toast(okMsg || 'Copiado.', 'ok'); return; }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(texto).then(() => toast(okMsg || 'Copiado.', 'ok'), () => toast('No se pudo copiar.', 'aviso'));
+    else toast('No se pudo copiar.', 'aviso');
+  }
+  const optsMaestros = (sel) => db.usuarios.filter((u) => u.rol === 'maestro').map((u) => '<option value="' + u.id + '"' + (u.id === sel ? ' selected' : '') + '>' + esc(u.nombre) + '</option>').join('');
+
+  /* ---------- cabecera y navegación ---------- */
+  function tickReloj() {
+    const d = ahora(), sim = !!(db.reloj && db.reloj.offsetMs);
+    const el = $('#reloj');
+    el.textContent = DIAS_NOMBRE[d.getDay()] + ' ' + C.pad(d.getDate()) + '/' + C.pad(d.getMonth() + 1) + ' ' + C.pad(d.getHours()) + ':' + C.pad(d.getMinutes()) + ':' + C.pad(d.getSeconds()) + (sim ? ' · hora de prueba' : '');
+    el.className = 'chip' + (sim ? ' sim' : '');
+  }
+  function chipLib() {
+    const el = $('#chipLib');
+    if (rt.libEstado === 'listo') { el.textContent = 'Reconocimiento facial: listo ✔'; el.className = 'chip ok'; }
+    else if (rt.libEstado === 'error') { el.textContent = 'Reconocimiento facial: no disponible · clic para reintentar'; el.className = 'chip err'; }
+    else { el.textContent = 'Reconocimiento facial: cargando modelos…'; el.className = 'chip'; }
+  }
+  function renderHeader() {
+    const u = byId(db.usuarios, ui.userId), admin = C.esAdmin(u);
+    document.body.classList.toggle('sin-sesion', !u);
+    $('#chipSesion').textContent = u ? u.nombre + ' · ' + etiquetaPuesto(u) + (admin && u.detalle ? ' (' + u.detalle + ')' : '') : '';
+    $$('#nav button').forEach((b) => { b.hidden = !admin && b.dataset.tab !== 'notif'; });
+    $('#chipLib').hidden = !admin;
+    chipLib(); tickReloj(); renderBadge(); renderSync();
+  }
+  /* Los avisos discretos (personas sin registro facial en horario de clase) no suman a la insignia: se ven en la bandeja sin llamar la atención. */
+  function noLeidas() { return C.notificacionesPara(db, ui.userId).filter((n) => n.severidad !== 'sutil' && (n.leidaPor || []).indexOf(ui.userId) < 0).length; }
+  function renderBadge() { const n = noLeidas(); const b = $('#badge'); b.textContent = n; b.hidden = !n; }
+  function irATab(t) {
+    if (!ui.userId) return;
+    if (!esAdminSesion()) t = 'notif'; else if (TABS_ADMIN.indexOf(t) < 0) t = 'monitor';
+    if (t === 'asistencia' && ui.tab !== 'asistencia') ui.asFecha = null;
+    ui.tab = t; ss.set('tab', t);
+    $$('#nav button').forEach((b) => b.classList.toggle('on', b.dataset.tab === t));
+    $$('.tab').forEach((s) => s.classList.toggle('on', s.id === 'tab-' + t));
+    renderTab();
+  }
+  function renderTab() {
+    if (!ui.userId) return;
+    ({ monitor: renderMonitor, alumnos: renderAlumnos, zonas: renderZonas, horarios: renderHorarios, personal: renderPersonal,
+      asistencia: renderAsistencia, notif: renderNotif, ajustes: renderAjustes }[ui.tab] || renderMonitor)();
+  }
+  function renderAll() { renderHeader(); renderTab(); }
+
+  /* ---------- Monitor ---------- */
+  function renderMonitor() {
+    if (!byId(db.camaras, ui.camaraId)) ui.camaraId = (db.camaras[0] || {}).id || null;
+    $('#selCamara').innerHTML = db.camaras.map((c) => '<option value="' + c.id + '"' + (c.id === ui.camaraId ? ' selected' : '') + '>' + esc(c.nombre) + ' — ' + esc(nombreZona(c.zonaId)) + '</option>').join('');
+    const optA = (a) => '<option value="' + a.id + '">' + esc(a.nombre) + '</option>';
+    const sinGrupo = db.alumnos.filter((a) => !byId(db.grupos, a.grupoId));
+    $('#simAlumno').innerHTML = db.grupos.filter((g) => db.alumnos.some((a) => a.grupoId === g.id))
+      .map((g) => '<optgroup label="' + esc(g.nombre) + '">' + db.alumnos.filter((a) => a.grupoId === g.id).map(optA).join('') + '</optgroup>').join('') +
+      (sinGrupo.length ? '<optgroup label="Sin grupo">' + sinGrupo.map(optA).join('') + '</optgroup>' : '') + '<option value="">Persona no identificada</option>';
+    renderPanelAhora(); renderBitacora(); renderBtnCam();
+  }
+  function descripcionZonaAhora(cam) {
+    const z = cam && byId(db.zonas, cam.zonaId);
+    if (!z) return 'Esta cámara no tiene zona asignada (configúralo en «Zonas y cámaras»).';
+    const d = ahora();
+    if (z.tipo === 'restringida') return 'Zona restringida: ningún alumno debe estar aquí, a ninguna hora.';
+    if (z.tipo === 'comun') {
+      const v = C.ventanaActual(db, z, d);
+      return 'Zona común. Horas permitidas: ' + (C.formatVentanas(z.ventanas) || 'ninguna') + '. Ahora: ' + (v ? 'permitido' + (v.nombre ? ' (' + v.nombre + ')' : '') : 'NO permitido');
+    }
+    const bl = C.bloquesActivos(db, d, C.cfgOf(db).minutosAntes).filter((b) => b.zonaId === z.id);
+    return 'Zona de clase: toma asistencia al reconocer a un alumno de ' + (bl.length ? nombreGrupo(bl[0].grupoId) : 'su grupo') + (bl.length ? ' (' + bl[0].materia + ' ' + bl[0].inicio + '-' + bl[0].fin + ')' : ' cuando haya clase aquí. Ahora no hay clase en este salón') + '.';
+  }
+  function renderPanelAhora() {
+    const d = ahora();
+    const cam = byId(db.camaras, ui.camaraId);
+    $('#camZonaInfo').textContent = descripcionZonaAhora(cam);
+    const filas = C.resumenHorario(db, d).map((r) => '<tr><td><b>' + esc(r.grupo.nombre) + '</b></td><td>' +
+      (r.bloque ? esc(r.bloque.materia) + ' <small>' + r.bloque.inicio + '–' + r.bloque.fin + '</small>' : '<span class="muted">sin clase' + (r.siguiente ? ' · sigue ' + esc(r.siguiente.materia) + ' ' + r.siguiente.inicio : '') + '</span>') +
+      '</td><td>' + (r.docente ? esc(r.docente.nombre) : '—') + '</td><td>' + (r.zona ? esc(r.zona.nombre) : '—') + '</td></tr>').join('');
+    $('#panelAhora').innerHTML = '<h2>Ahora según el horario</h2>' +
+      (C.esDiaDeClase(db, d) ? '' : '<div class="banner warn">Hoy (' + DIAS_NOMBRE[d.getDay()] + ') no es día de clase: en zonas comunes cualquier alumno cuenta como fuera de horario. Cambia la hora en <b>Ajustes → Hora de prueba</b>.</div>') +
+      '<div class="tablewrap" style="max-height:440px;overflow:auto"><table><thead><tr><th>Grupo</th><th>Clase</th><th>Maestro</th><th>Salón</th></tr></thead><tbody>' + (filas || '<tr><td colspan="4" class="muted">Sin grupos</td></tr>') + '</tbody></table></div>';
+  }
+  function logDeteccion(fecha, texto) {
+    rt.bitacora.unshift({ t: C.fmtHora(fecha) + ':' + C.pad(fecha.getSeconds()), texto });
+    rt.bitacora = rt.bitacora.slice(0, 40);
+    if (ui.tab === 'monitor') renderBitacora();
+  }
+  function renderBitacora() {
+    $('#bitacora').innerHTML = rt.bitacora.length ? rt.bitacora.map((b) => '<div><time>' + b.t + '</time>' + esc(b.texto) + '</div>').join('') : '<span class="muted">Aún no hay detecciones.</span>';
+  }
+  function renderBtnCam() {
+    $('#btnCam').textContent = rt.running ? 'Detener cámara' : 'Iniciar cámara y reconocimiento';
+    $('#stagePlaceholder').style.display = rt.stream ? 'none' : '';
+  }
+
+  /* ---------- reconocimiento facial: carga de la biblioteca ---------- */
+  const FUENTES = [
+    { lib: './vendor/face-api.js', modelos: './model/' },
+    { lib: 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js', modelos: 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/' },
+    { lib: 'https://unpkg.com/@vladmandic/face-api/dist/face-api.js', modelos: 'https://unpkg.com/@vladmandic/face-api/model/' },
+    { lib: 'https://vladmandic.github.io/face-api/dist/face-api.js', modelos: 'https://vladmandic.github.io/face-api/model/' }
+  ];
+  function cargarScript(src) {
+    return new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = src; s.onload = () => res(s); s.onerror = () => { s.remove(); rej(new Error('no se pudo cargar ' + src)); };
+      document.head.appendChild(s);
+    });
+  }
+  function asegurarLibreria() { if (!rt.libIniciada) { rt.libIniciada = true; cargarLibreria(); } }
+  async function cargarLibreria() {
+    rt.libIniciada = true;
+    rt.libEstado = 'cargando'; rt.libErrores = []; chipLib();
+    let ultimo = null;
+    for (const f of FUENTES) {
+      try {
+        if (!window.faceapi) await cargarScript(f.lib);
+        if (!window.faceapi) throw new Error('faceapi no definido');
+        if (faceapi.tf && faceapi.tf.ready) await faceapi.tf.ready();
+        await Promise.all([faceapi.nets.tinyFaceDetector.loadFromUri(f.modelos), faceapi.nets.faceLandmark68Net.loadFromUri(f.modelos), faceapi.nets.faceRecognitionNet.loadFromUri(f.modelos)]);
+        rt.libReady = true; rt.libEstado = 'listo'; rt.libFuente = f.lib; reconstruirMatcher(); chipLib();
+        if (ui.tab === 'ajustes') renderAjustes();
+        return;
+      } catch (e) { ultimo = e; rt.libErrores.push(f.lib + ' → ' + ((e && e.message) || e)); }
+    }
+    rt.libEstado = 'error'; rt.libError = ultimo && ultimo.message; chipLib();
+    if (ui.tab === 'ajustes') renderAjustes();
+    camEstado('No se pudo cargar el reconocimiento facial (necesita internet la primera vez). Mientras tanto puedes usar el simulador y todo lo demás.');
+  }
+  function reconstruirMatcher() {
+    if (!rt.libReady) { rt.matcher = null; return; }
+    const lab = db.alumnos.filter((a) => a.descriptores && a.descriptores.length)
+      .map((a) => new faceapi.LabeledFaceDescriptors(a.id, a.descriptores.map((d) => Float32Array.from(d))));
+    rt.matcher = lab.length ? new faceapi.FaceMatcher(lab, C.cfgOf(db).umbralDistancia) : null;
+  }
+
+  /* ---------- cámara ---------- */
+  function camEstado(t) { $('#camEstado').textContent = t || ''; }
+  function errorCamara(e) {
+    if (window.Capacitor && e && e.name === 'NotAllowedError') return 'Permiso de cámara denegado. En Android: Ajustes → Aplicaciones → VISIONIX → Permisos → Cámara → Permitir, y vuelve a intentar.';
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return 'Este navegador no permite usar la cámara en esta página. Abre el archivo con Chrome, Edge o Firefox desde tu computadora (o desde https / localhost).';
+    switch (e && e.name) {
+      case 'NotAllowedError': return 'Permiso de cámara denegado. Actívalo desde el candado de la barra de direcciones y vuelve a intentar.';
+      case 'NotFoundError': return 'No se encontró ninguna cámara.';
+      case 'NotReadableError': return 'La cámara está en uso por otra aplicación.';
+      default: return 'No se pudo abrir la cámara: ' + ((e && e.message) || e);
+    }
+  }
+  async function abrirCamara() {
+    if (rt.stream) return;
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('sin mediaDevices');
+    const video = { width: { ideal: 640 }, height: { ideal: 480 } };
+    if (ui.deviceId) video.deviceId = { exact: ui.deviceId }; else video.facingMode = 'user';
+    rt.stream = await navigator.mediaDevices.getUserMedia({ video, audio: false });
+    const tr = rt.stream.getVideoTracks()[0];
+    const st = tr && tr.getSettings ? tr.getSettings() : {};
+    rt.mirror = st.facingMode !== 'environment';
+    const v = $('#video');
+    v.classList.toggle('mirror', rt.mirror);
+    v.srcObject = rt.stream;
+    await v.play().catch(() => {});
+    await llenarDispositivos();
+    renderBtnCam();
+  }
+  function cerrarCamara() {
+    if (rt.stream) rt.stream.getTracks().forEach((t) => t.stop());
+    rt.stream = null; $('#video').srcObject = null;
+    const cv = $('#overlay'); cv.getContext('2d').clearRect(0, 0, cv.width, cv.height);
+    renderBtnCam();
+  }
+  async function llenarDispositivos() {
+    try {
+      const l = (await navigator.mediaDevices.enumerateDevices()).filter((d) => d.kind === 'videoinput');
+      const cur = rt.stream && rt.stream.getVideoTracks()[0] && rt.stream.getVideoTracks()[0].getSettings().deviceId;
+      $('#selDispositivo').innerHTML = '<option value="">Predeterminado</option>' + l.map((d, i) => '<option value="' + esc(d.deviceId) + '"' + (d.deviceId === (ui.deviceId || cur) ? ' selected' : '') + '>' + esc(d.label || 'Cámara ' + (i + 1)) + '</option>').join('');
+    } catch (e) { /* sin lista de dispositivos */ }
+  }
+  async function alternarMonitor() {
+    if (!esAdminSesion()) return;
+    if (rt.running) { detenerMonitor(true); return; }
+    try { await abrirCamara(); } catch (e) { camEstado(errorCamara(e)); return; }
+    rt.running = true; rt.streak = {}; rt.lastCall = {};
+    camEstado(rt.libReady ? 'Reconociendo…' : 'Cámara encendida, pero el reconocimiento facial aún no está listo.');
+    renderBtnCam(); bucle();
+  }
+  function detenerMonitor(cerrar) {
+    rt.running = false; clearTimeout(rt.timer);
+    if (cerrar) cerrarCamara();
+    camEstado(''); renderBtnCam();
+  }
+
+  /* ---------- reconocimiento: bucle de detección ---------- */
+  async function bucle() {
+    if (!rt.running) return;
+    const t0 = performance.now();
+    try {
+      const v = $('#video');
+      if (rt.libReady && !rt.paused && v.readyState >= 2 && v.videoWidth) {
+        if (rt.matcher === null) reconstruirMatcher();
+        const dets = await faceapi.detectAllFaces(v, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.5 })).withFaceLandmarks().withFaceDescriptors();
+        if (rt.running) procesarFotograma(dets);
+      } else if (rt.libReady && rt.libEstado === 'listo' && camEstadoTxt() !== 'Reconociendo…' && !rt.paused) {
+        camEstado('Reconociendo…');
+      }
+    } catch (e) { console.error(e); camEstado('Error en el reconocimiento: ' + (e && e.message)); }
+    if (rt.running) rt.timer = setTimeout(bucle, Math.max(80, 320 - (performance.now() - t0)));
+  }
+  const camEstadoTxt = () => $('#camEstado').textContent;
+
+  function procesarFotograma(dets) {
+    const v = $('#video'), cv = $('#overlay'), cx = cv.getContext('2d');
+    const W = v.videoWidth, H = v.videoHeight;
+    if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+    cx.clearRect(0, 0, W, H);
+    const cfg = C.cfgOf(db);
+    const presentes = {};
+    dets.forEach((d) => {
+      const m = rt.matcher ? rt.matcher.findBestMatch(d.descriptor) : null;
+      const alumnoId = m && m.label !== 'unknown' ? m.label : null;
+      const key = alumnoId || 'desconocido';
+      const box = d.detection.box;
+      if (!presentes[key] || box.width * box.height > presentes[key].box.width * presentes[key].box.height) presentes[key] = { alumnoId, box, dist: m ? m.distance : null };
+    });
+    Object.keys(rt.streak).forEach((k) => { if (!presentes[k]) { delete rt.streak[k]; delete rt.lastCall[k]; } });
+    Object.keys(presentes).forEach((k) => {
+      const p = presentes[k];
+      rt.streak[k] = (rt.streak[k] || 0) + 1;
+      const necesita = k === 'desconocido' ? cfg.confirmaciones * 2 : cfg.confirmaciones;
+      dibujarCaja(cx, W, p, rt.streak[k], necesita);
+      if (rt.streak[k] >= necesita) {
+        const t = performance.now();
+        if (rt.lastCall[k] == null || t - rt.lastCall[k] >= cfg.cooldownSeg * 1000) {
+          rt.lastCall[k] = t;
+          dispararEvento({ camaraId: ui.camaraId, alumnoId: p.alumnoId }, p.box);
+        }
+      }
+    });
+  }
+  function dibujarCaja(cx, W, p, racha, necesita) {
+    const b = p.box, x = rt.mirror ? W - (b.x + b.width) : b.x;
+    const color = p.alumnoId ? '#22c55e' : '#f59e0b';
+    cx.lineWidth = Math.max(2, W / 260); cx.strokeStyle = color; cx.strokeRect(x, b.y, b.width, b.height);
+    const txt = (p.alumnoId ? nombreAlumno(p.alumnoId) : 'No identificado') + (racha < necesita ? ' (' + racha + '/' + necesita + ')' : '');
+    cx.font = Math.max(13, Math.round(W / 40)) + 'px system-ui,sans-serif';
+    const tw = cx.measureText(txt).width + 10, th = Math.max(18, Math.round(W / 32));
+    cx.fillStyle = color; cx.fillRect(x, Math.max(0, b.y - th), tw, th);
+    cx.fillStyle = '#0b0f14'; cx.fillText(txt, x + 5, Math.max(th - 5, b.y - 5));
+  }
+  function capturarFoto(box) {
+    try {
+      if (C.cfgOf(db).guardarFotos === false) return null;
+      const v = $('#video'); if (!v.videoWidth) return null;
+      const lado = Math.max(box.width, box.height) * 1.5;
+      const cx = box.x + box.width / 2, cy = box.y + box.height / 2;
+      const sx = Math.max(0, cx - lado / 2), sy = Math.max(0, cy - lado / 2);
+      const sw = Math.min(v.videoWidth - sx, lado), sh = Math.min(v.videoHeight - sy, lado);
+      const c = document.createElement('canvas'); c.width = 120; c.height = 120;
+      c.getContext('2d').drawImage(v, sx, sy, sw, sh, 0, 0, 120, 120);
+      return c.toDataURL('image/jpeg', 0.6);
+    } catch (e) { return null; }
+  }
+
+  /* ---------- aplicar una detección a la BD ---------- */
+  function dispararEvento(det, box) {
+    const fecha = ahora();
+    const res = C.procesarDeteccion(db, det, fecha, memo);
+    const prevIds = new Set(db.notificaciones.map((n) => n.id));
+    if (res.asistencias.length || res.notificaciones.length) {
+      const foto = box ? capturarFoto(box) : null;
+      res.asistencias.forEach((a) => { if (foto) a.foto = foto; db.asistencias.push(a); });
+      res.notificaciones.forEach((n) => { if (foto) n.foto = foto; db.notificaciones.push(n); });
+      podarHistorial(); guardar();
+    }
+    const quien = det.alumnoId ? nombreAlumno(det.alumnoId) : 'Persona no identificada';
+    const cam = byId(db.camaras, det.camaraId);
+    logDeteccion(fecha, quien + ' · ' + (cam ? cam.nombre : '?') + ' → ' + res.log);
+    avisarNuevas(prevIds);
+    renderBadge();
+    if (ui.tab === 'notif') renderNotif();
+    if (ui.tab === 'asistencia') renderAsistencia();
+  }
+  function podarHistorial() {
+    if (db.notificaciones.length > 300) db.notificaciones.splice(0, db.notificaciones.length - 300);
+    for (let i = 0; i < db.notificaciones.length - 60; i++) delete db.notificaciones[i].foto;
+    for (let i = 0; i < db.asistencias.length - 80; i++) delete db.asistencias[i].foto;
+  }
+  /** Muestra aviso emergente para las notificaciones nuevas dirigidas al usuario que está viendo. */
+  function avisarNuevas(prevIds) {
+    const mias = new Set(C.notificacionesPara(db, ui.userId).map((n) => n.id));
+    db.notificaciones.filter((n) => !prevIds.has(n.id) && mias.has(n.id) && n.severidad !== 'sutil').forEach((n) => {
+      toast(n.titulo, n.severidad === 'critica' ? 'critica' : n.severidad === 'aviso' ? 'aviso' : 'ok');
+      try { if (window.Notification && Notification.permission === 'granted' && document.hidden) new Notification(n.titulo, { body: n.detalle }); } catch (e) { /* sin notificaciones del navegador */ }
+    });
+  }
+
+  /* ---------- Alumnos ---------- */
+  function renderAlumnos() {
+    if (ui.alGrupo && !byId(db.grupos, ui.alGrupo)) ui.alGrupo = '';
+    $('#tab-alumnos').innerHTML = '<div class="card"><h2>Base de datos de alumnos</h2>' +
+      '<p class="muted">Todo es editable: escribe sobre cualquier celda. Para probar tu rostro, usa «Agregar alumno» con tu nombre o «Registrar rostro» en uno de los alumnos de muestra. Solo los alumnos tienen reconocimiento facial.</p>' +
+      '<div class="row"><button class="primary" data-act="add-alumno">Agregar alumno</button>' +
+      '<label>Grupo<select id="alGrupo"><option value="">Todos</option>' + optsGrupos(ui.alGrupo) + '</select></label>' +
+      '<label>Buscar<input id="alBusca" type="search" placeholder="Nombre o matrícula" value="' + esc(ui.alBusca || '') + '"></label>' +
+      '<span class="muted" id="alCuenta"></span></div>' +
+      '<div class="tablewrap"><table><thead><tr><th>Nombre</th><th>Matrícula</th><th>Grupo</th><th>Rostro</th><th></th></tr></thead><tbody id="alTbody"></tbody></table></div></div>';
+    renderAlumnosFilas();
+  }
+  function renderAlumnosFilas() {
+    const q = (ui.alBusca || '').trim().toLowerCase();
+    const lista = db.alumnos.filter((a) => (!ui.alGrupo || a.grupoId === ui.alGrupo) &&
+      (!q || String(a.nombre).toLowerCase().indexOf(q) >= 0 || String(a.matricula).toLowerCase().indexOf(q) >= 0));
+    $('#alTbody').innerHTML = lista.map((a) => {
+      const tiene = a.descriptores && a.descriptores.length;
+      return '<tr><td><input data-tbl="alumnos" data-id="' + a.id + '" data-f="nombre" value="' + esc(a.nombre) + '"></td>' +
+        '<td><input data-tbl="alumnos" data-id="' + a.id + '" data-f="matricula" value="' + esc(a.matricula) + '"></td>' +
+        '<td><select data-tbl="alumnos" data-id="' + a.id + '" data-f="grupoId">' + optsGrupos(a.grupoId) + '</select></td>' +
+        '<td>' + (tiene ? '<span class="pill ok">✔ rostro registrado (' + a.descriptores.length + ' muestras)</span>' : '<span class="pill">sin rostro</span>') + '</td>' +
+        '<td class="acts"><button class="sm primary" data-act="enrol" data-id="' + a.id + '">' + (tiene ? 'Volver a registrar' : 'Registrar rostro') + '</button>' +
+        (tiene ? '<button class="sm" data-act="quitar-rostro" data-id="' + a.id + '">Quitar rostro</button>' : '') +
+        '<button class="sm danger" data-act="del" data-tbl="alumnos" data-id="' + a.id + '">Eliminar</button></td></tr>';
+    }).join('') || '<tr><td colspan="5" class="muted">No hay alumnos con ese filtro.</td></tr>';
+    $('#alCuenta').textContent = lista.length + ' de ' + db.alumnos.length + ' alumnos';
+  }
+  function modalAddAlumno() {
+    if (!esAdminSesion()) return;
+    abrirModal('<h3>Agregar alumno</h3><form id="formAlumno">' +
+      '<div class="row"><label style="flex:1">Nombre<input id="fa_nombre" required placeholder="Tu nombre"></label></div>' +
+      '<div class="row"><label>Matrícula (opcional)<input id="fa_mat"></label><label>Grupo<select id="fa_grupo">' + optsGrupos(ui.alGrupo) + '</select></label></div>' +
+      '<label class="check"><input type="checkbox" id="fa_rostro" checked> Registrar su rostro ahora</label>' +
+      '<div class="row"><button type="button" data-act="modal-cerrar">Cancelar</button><button class="primary" type="submit">Guardar</button></div></form>');
+    $('#fa_nombre').focus();
+    $('#formAlumno').addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!db.grupos.length) { toast('Primero crea un grupo en «Personal y grupos».', 'aviso'); return; }
+      const a = { id: C.uid('al'), nombre: $('#fa_nombre').value.trim(), matricula: $('#fa_mat').value.trim() || ('2026-' + C.pad(db.alumnos.length + 1)), grupoId: $('#fa_grupo').value, descriptores: [] };
+      if (!a.nombre) return;
+      const quiereRostro = $('#fa_rostro').checked;
+      db.alumnos.push(a); guardar(); cerrarModal(); renderAlumnos();
+      if (quiereRostro) abrirRegistro(a.id);
+    });
+  }
+
+  /* ---------- registro facial (modal) ---------- */
+  function abrirRegistro(alumnoId) {
+    if (!esAdminSesion()) return;
+    const a = byId(db.alumnos, alumnoId); if (!a) return;
+    abrirModal('<h3>Registrar rostro · ' + esc(a.nombre) + '</h3>' +
+      '<div id="enrolPaso1"><p class="muted">Se tomarán 6 capturas rápidas para calcular una «huella facial» (una lista de números). Del registro no se guarda ninguna foto; la huella queda solo en este navegador. Las notificaciones sí guardan una miniatura pequeña del momento de la detección (se puede desactivar en Ajustes).</p>' +
+      '<label class="check"><input type="checkbox" id="enrolConsent"> Confirmo que la persona dio su consentimiento para registrar su rostro (si es menor de edad, su madre, padre o tutor).</label>' +
+      (rt.libReady ? '' : '<div class="banner warn">El reconocimiento facial aún no está listo (' + (rt.libEstado === 'error' ? 'no se pudo cargar: revisa tu conexión' : 'cargando modelos…') + ').</div>') +
+      '<div class="row"><button data-act="enrol-cancel">Cancelar</button><button class="primary" id="enrolStart" data-act="enrol-start" data-id="' + a.id + '" disabled>Comenzar</button></div></div>' +
+      '<div id="enrolPaso2" hidden><div class="stage small"><video id="enrolVideo" playsinline muted></video></div>' +
+      '<div class="prompt" id="enrolPrompt">Iniciando cámara…</div><progress id="enrolProg" max="6" value="0"></progress><p class="muted" id="enrolMsg"></p>' +
+      '<div class="row"><button data-act="enrol-cancel">Cancelar</button></div></div>' +
+      '<div id="enrolPaso3" hidden></div>');
+    const act = () => { $('#enrolStart').disabled = !($('#enrolConsent').checked && rt.libReady); };
+    $('#enrolConsent').addEventListener('change', act);
+    rt.enrolAct = act;
+  }
+  const dist = (a, b) => { let s = 0; for (let i = 0; i < a.length; i++) { const d = a[i] - b[i]; s += d * d; } return Math.sqrt(s); };
+  async function iniciarCaptura(alumnoId) {
+    if (!esAdminSesion()) return;
+    const a = byId(db.alumnos, alumnoId); if (!a) return;
+    const token = ++rt.enrolToken;
+    $('#enrolPaso1').hidden = true; $('#enrolPaso2').hidden = false;
+    const setMsg = (t) => { const e = $('#enrolMsg'); if (e) e.textContent = t || ''; };
+    const setPrompt = (t) => { const e = $('#enrolPrompt'); if (e) e.textContent = t; };
+    try { await abrirCamara(); } catch (e) { setPrompt('No se pudo abrir la cámara'); setMsg(errorCamara(e)); return; }
+    const ev = $('#enrolVideo'); ev.classList.toggle('mirror', rt.mirror); ev.srcObject = rt.stream; await ev.play().catch(() => {});
+    rt.paused = true;
+    const pasos = ['Mira de frente', 'Gira un poco la cabeza a tu izquierda', 'Gira un poco la cabeza a tu derecha', 'Levanta un poco la barbilla', 'Baja un poco la barbilla', 'Mira de frente y sonríe'];
+    const muestras = []; let intentos = 0;
+    while (muestras.length < pasos.length && token === rt.enrolToken && intentos < 150) {
+      setPrompt(pasos[muestras.length]); intentos++;
+      let dets = [];
+      try { dets = await faceapi.detectAllFaces(ev, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.6 })).withFaceLandmarks().withFaceDescriptors(); }
+      catch (e) { setMsg('Error al analizar la imagen: ' + (e && e.message)); await sleep(500); continue; }
+      if (token !== rt.enrolToken) return;
+      if (dets.length === 0) { setMsg('No veo ninguna cara. Acércate un poco y busca buena luz.'); await sleep(300); continue; }
+      if (dets.length > 1) { setMsg('Hay más de una cara en la imagen. Debe aparecer solo la persona a registrar.'); await sleep(300); continue; }
+      muestras.push(Array.from(dets[0].descriptor).map((x) => +x.toFixed(4)));
+      $('#enrolProg').value = muestras.length; setMsg('Captura ' + muestras.length + ' de ' + pasos.length);
+      $('.stage.small').classList.remove('flash'); void $('.stage.small').offsetWidth; $('.stage.small').classList.add('flash');
+      await sleep(1000);
+    }
+    if (token !== rt.enrolToken) return;
+    rt.paused = false;
+    if (muestras.length < pasos.length) { setPrompt('No se completó el registro'); setMsg('Intenta de nuevo con más luz y la cara bien visible.'); return; }
+    /* ¿se parece a otra persona ya registrada? */
+    let parecido = null, mejor = Infinity;
+    db.alumnos.forEach((o) => { if (o.id === a.id || !o.descriptores) return; o.descriptores.forEach((d) => muestras.forEach((m) => { const x = dist(m, d); if (x < mejor) { mejor = x; parecido = o; } })); });
+    rt.enrolPend = { alumnoId: a.id, muestras };
+    if (parecido && mejor < C.cfgOf(db).umbralDistancia) {
+      $('#enrolPaso2').hidden = true; const p3 = $('#enrolPaso3'); p3.hidden = false;
+      p3.innerHTML = '<div class="banner warn">Este rostro se parece mucho a <b>' + esc(parecido.nombre) + '</b> (ya registrado). Si guardas, el sistema podría confundirlos.</div><div class="row"><button data-act="enrol-cancel">Cancelar</button><button class="primary" data-act="enrol-guardar">Guardar de todos modos</button></div>';
+      return;
+    }
+    guardarRostro();
+  }
+  function guardarRostro() {
+    if (!esAdminSesion()) return;
+    const p = rt.enrolPend; if (!p) return;
+    const a = byId(db.alumnos, p.alumnoId); if (!a) return;
+    a.descriptores = p.muestras; rt.enrolPend = null; guardar(); reconstruirMatcher();
+    cancelarRegistro(true); renderAlumnos(); toast('Rostro registrado para ' + a.nombre, 'ok');
+  }
+  function cancelarRegistro(ok) {
+    rt.enrolToken++; rt.paused = false; rt.enrolPend = null;
+    const ev = $('#enrolVideo'); if (ev) ev.srcObject = null;
+    if (!rt.running) cerrarCamara();
+    cerrarModal();
+  }
+
+  /* ---------- Zonas y cámaras ---------- */
+  function renderZonas() {
+    const zonas = db.zonas.map((z) => '<tr><td><input data-tbl="zonas" data-id="' + z.id + '" data-f="nombre" value="' + esc(z.nombre) + '"></td>' +
+      '<td><select data-tbl="zonas" data-id="' + z.id + '" data-f="tipo">' + Object.keys(TIPOS).map((k) => '<option value="' + k + '"' + (z.tipo === k ? ' selected' : '') + '>' + TIPOS[k] + '</option>').join('') + '</select></td>' +
+      '<td>' + (z.tipo === 'comun' ? '<input data-tbl="zonas" data-id="' + z.id + '" data-f="ventanas" value="' + esc(C.formatVentanas(z.ventanas)) + '" placeholder="06:40-07:00 Entrada, 10:30-11:00 Receso">' :
+        '<span class="muted">' + (z.tipo === 'clase' ? 'Se define en «Horarios» (qué grupo ocupa el salón y cuándo)' : 'Nunca debe haber alumnos') + '</span>') + '</td>' +
+      '<td class="acts"><button class="sm danger" data-act="del" data-tbl="zonas" data-id="' + z.id + '">Eliminar</button></td></tr>').join('');
+    const cams = db.camaras.map((c) => '<tr><td><input data-tbl="camaras" data-id="' + c.id + '" data-f="nombre" value="' + esc(c.nombre) + '"></td>' +
+      '<td><select data-tbl="camaras" data-id="' + c.id + '" data-f="zonaId"><option value="">(sin zona)</option>' + optsZonas(c.zonaId) + '</select></td>' +
+      '<td class="acts"><button class="sm danger" data-act="del" data-tbl="camaras" data-id="' + c.id + '">Eliminar</button></td></tr>').join('');
+    $('#tab-zonas').innerHTML = '<div class="card"><h2>Zonas</h2>' +
+      '<p class="muted">Tres tipos: <b>clase</b> (al reconocer al alumno en su salón durante su clase, se marca su asistencia una sola vez al día), <b>común</b> (puede haber alumnos solo en las horas indicadas) y <b>restringida</b> (nunca debe haber alumnos). Las horas permitidas se escriben como <code>HH:MM-HH:MM Nombre</code>, separadas por comas.</p>' +
+      '<div class="row"><button class="primary" data-act="add-zona">Agregar zona</button></div><div class="tablewrap"><table><thead><tr><th>Nombre</th><th>Tipo</th><th>Horas permitidas</th><th></th></tr></thead><tbody>' + zonas + '</tbody></table></div></div>' +
+      '<div class="card"><h2>Cámaras de la red</h2><p class="muted">Cada cámara se asigna a una zona. En esta prueba usas tu cámara real en el «Monitor» y eliges cuál de estas cámaras representa.</p>' +
+      '<div class="row"><button class="primary" data-act="add-camara">Agregar cámara</button></div><div class="tablewrap"><table><thead><tr><th>Nombre</th><th>Zona</th><th></th></tr></thead><tbody>' + cams + '</tbody></table></div></div>';
+  }
+
+  /* ---------- Horarios ---------- */
+  function conflictosHorario() {
+    const out = [], H = db.horarios;
+    H.forEach((b) => { if (!(C.hhmmToMin(b.fin) > C.hhmmToMin(b.inicio))) out.push('La clase de ' + b.materia + ' (' + nombreGrupo(b.grupoId) + ') tiene la hora de fin antes del inicio.'); });
+    for (let i = 0; i < H.length; i++) for (let j = i + 1; j < H.length; j++) {
+      const a = H[i], b = H[j];
+      if (!a.dias.some((d) => b.dias.indexOf(d) >= 0)) continue;
+      if (!(C.hhmmToMin(a.inicio) < C.hhmmToMin(b.fin) && C.hhmmToMin(b.inicio) < C.hhmmToMin(a.fin))) continue;
+      const rango = a.inicio + '–' + a.fin + ' y ' + b.inicio + '–' + b.fin;
+      if (a.docenteId === b.docenteId) out.push(nombreUsuario(a.docenteId) + ' tiene dos clases a la vez (' + rango + ').');
+      else if (a.grupoId === b.grupoId) out.push('El grupo ' + nombreGrupo(a.grupoId) + ' tiene dos clases a la vez (' + rango + ').');
+      else if (a.zonaId === b.zonaId) out.push(nombreZona(a.zonaId) + ' está asignado a dos grupos a la vez (' + rango + ').');
+    }
+    return out;
+  }
+  function renderHorarios() {
+    if (ui.hoGrupo === undefined || (ui.hoGrupo && !byId(db.grupos, ui.hoGrupo))) ui.hoGrupo = (db.grupos[0] || {}).id || '';
+    const lista = db.horarios.filter((h) => !ui.hoGrupo || h.grupoId === ui.hoGrupo).sort((x, y) => nombreGrupo(x.grupoId).localeCompare(nombreGrupo(y.grupoId)) || C.hhmmToMin(x.inicio) - C.hhmmToMin(y.inicio));
+    const filas = lista.map((h) => '<tr><td><select data-tbl="horarios" data-id="' + h.id + '" data-f="grupoId">' + optsGrupos(h.grupoId) + '</select></td>' +
+      '<td style="white-space:nowrap">' + [[1, 'L'], [2, 'M'], [3, 'X'], [4, 'J'], [5, 'V']].map((d) => '<label class="inline" style="display:inline-flex;margin-right:6px"><input type="checkbox" data-tbl="horarios" data-id="' + h.id + '" data-f="dias" data-dia="' + d[0] + '"' + (h.dias.indexOf(d[0]) >= 0 ? ' checked' : '') + '>' + d[1] + '</label>').join('') + '</td>' +
+      '<td><input type="time" data-tbl="horarios" data-id="' + h.id + '" data-f="inicio" value="' + h.inicio + '"></td>' +
+      '<td><input type="time" data-tbl="horarios" data-id="' + h.id + '" data-f="fin" value="' + h.fin + '"></td>' +
+      '<td><input data-tbl="horarios" data-id="' + h.id + '" data-f="materia" value="' + esc(h.materia) + '"></td>' +
+      '<td><select data-tbl="horarios" data-id="' + h.id + '" data-f="docenteId">' + optsMaestros(h.docenteId) + '</select></td>' +
+      '<td><select data-tbl="horarios" data-id="' + h.id + '" data-f="zonaId">' + optsZonas(h.zonaId, 'clase') + '</select></td>' +
+      '<td class="acts"><button class="sm danger" data-act="del" data-tbl="horarios" data-id="' + h.id + '">✕</button></td></tr>').join('');
+    const conf = conflictosHorario();
+    $('#tab-horarios').innerHTML = '<div class="card"><h2>Horarios de clase</h2>' +
+      '<p class="muted">Define qué grupo está en qué salón, con qué maestro y cuándo. De aquí salen dos cosas: <b>quién toma asistencia</b> en cada salón y <b>qué maestro recibe avisos</b> (solo los de los alumnos del grupo al que da clase en ese momento). Las horas fuera de los bloques (receso, etc.) no son clase.</p>' +
+      (conf.length ? '<div class="banner bad"><b>Revisa estos choques:</b><ul>' + conf.map((c) => '<li>' + esc(c) + '</li>').join('') + '</ul></div>' : '') +
+      '<div class="row"><button class="primary" data-act="add-horario">Agregar clase</button><label>Ver el horario de<select id="hoGrupo"><option value="">Todos los grupos</option>' + optsGrupos(ui.hoGrupo) + '</select></label></div>' +
+      '<div class="tablewrap"><table><thead><tr><th>Grupo</th><th>Días</th><th>Inicio</th><th>Fin</th><th>Materia</th><th>Maestro</th><th>Salón</th><th></th></tr></thead><tbody>' + filas + '</tbody></table></div></div>';
+  }
+
+  /* ---------- Personal y grupos ---------- */
+  function resumenAreas(u) {
+    if (u.rol === 'maestro') return 'Según su horario de clases';
+    const a = u.areas || {};
+    const g = (a.grupos || []).filter((id) => byId(db.grupos, id)).length, z = (a.zonas || []).filter((id) => byId(db.zonas, id)).length;
+    if (!g && !z) return 'Sin áreas asignadas (no recibe avisos)';
+    return [g ? g + (g === 1 ? ' grupo' : ' grupos') : '', z ? z + (z === 1 ? ' zona' : ' zonas') : ''].filter(Boolean).join(' · ');
+  }
+  function filaPersonal(x) {
+    const d = 'data-tbl="usuarios" data-id="' + x.id + '"';
+    return '<tr><td><input ' + d + ' data-f="nombre" value="' + esc(x.nombre) + '"></td>' +
+      '<td><select ' + d + ' data-f="rol">' + Object.keys(C.PUESTOS).map((k) => '<option value="' + k + '"' + (x.rol === k ? ' selected' : '') + '>' + C.PUESTOS[k] + '</option>').join('') + '</select></td>' +
+      '<td><input ' + d + ' data-f="detalle" value="' + esc(x.detalle || '') + '" placeholder="' + (x.rol === 'maestro' ? 'Materia' : 'Nota (opcional)') + '"></td>' +
+      '<td>' + esc(resumenAreas(x)) + (x.rol !== 'maestro' ? ' <button class="sm" data-act="areas" data-id="' + x.id + '">Elegir áreas</button>' : '') + '</td>' +
+      '<td class="codcol"><code class="codigo">' + esc(C.formatearCodigo(x.codigo)) + '</code> <button class="sm" data-act="copiar-acceso" data-id="' + x.id + '">Copiar acceso</button> <button class="sm" data-act="regen-codigo" data-id="' + x.id + '">Regenerar</button></td>' +
+      '<td class="acts"><button class="sm danger" data-act="del" data-tbl="usuarios" data-id="' + x.id + '">Eliminar</button></td></tr>';
+  }
+  function filaAdmin(x) {
+    const d = 'data-tbl="usuarios" data-id="' + x.id + '"', yo = x.id === ui.userId;
+    return '<tr><td><input ' + d + ' data-f="nombre" value="' + esc(x.nombre) + '">' + (yo ? ' <span class="pill">tú</span>' : '') + '</td>' +
+      '<td><input ' + d + ' data-f="detalle" value="' + esc(x.detalle || '') + '" placeholder="Cargo"></td>' +
+      '<td>' + esc(x.email || '—') + '</td><td>' + (yo ? '<button class="sm" data-act="cambiar-pw" data-id="' + x.id + '">Cambiar contraseña</button>' : '<span class="muted">La cambia cada quien</span>') + '</td>' +
+      '<td class="acts"><button class="sm danger" data-act="del" data-tbl="usuarios" data-id="' + x.id + '">Eliminar</button></td></tr>';
+  }
+  function renderPersonal() {
+    const personal = db.usuarios.filter((u) => !C.esAdmin(u)).map(filaPersonal).join('');
+    const admins = db.usuarios.filter(C.esAdmin).map(filaAdmin).join('');
+    const g = db.grupos.map((x) => '<tr><td><input data-tbl="grupos" data-id="' + x.id + '" data-f="nombre" value="' + esc(x.nombre) + '"></td><td class="acts"><button class="sm danger" data-act="del" data-tbl="grupos" data-id="' + x.id + '">Eliminar</button></td></tr>').join('');
+    $('#tab-personal').innerHTML =
+      '<div class="card"><h2>Personal autorizado</h2><p class="muted">Cada persona entra con su <b>nombre</b>, su <b>puesto</b> y el <b>código de acceso</b> de la última columna (entrégaselo tú; «Regenerar» invalida el anterior y cierra su sesión). ' +
+      '<b>Solo reciben notificaciones de su área</b>: los maestros, de los alumnos del grupo al que dan clase en ese momento (según «Horarios»); tutores, secretarios y orientadores, de los grupos y zonas que les asignes con «Elegir áreas». ' +
+      'No pueden registrar rostros ni cambiar nada: eso es solo de los administradores. <b>Sin reconocimiento facial:</b> el personal no registra su rostro.</p>' +
+      '<div class="row"><button class="primary" data-act="add-personal">Agregar personal autorizado</button></div>' +
+      '<div class="tablewrap"><table><thead><tr><th>Nombre</th><th>Puesto</th><th>Materia / nota</th><th>Área</th><th>Código de acceso</th><th></th></tr></thead><tbody>' + (personal || '<tr><td colspan="6" class="muted">No hay personal autorizado.</td></tr>') + '</tbody></table></div></div>' +
+      '<div class="card"><h2>Administradores (directivos)</h2><p class="muted">' + 'Entran con su <b>correo</b> y <b>contraseña</b>. Reciben <b>todas</b> las notificaciones de todas las zonas y son los únicos que administran la base de datos, las zonas, los horarios, el personal y el registro de rostros. <b>Sin reconocimiento facial.</b></p>' +
+      '<div class="row"><button class="primary" data-act="add-admin">Agregar administrador</button></div>' +
+      '<div class="tablewrap"><table><thead><tr><th>Nombre</th><th>Cargo</th>' + '<th>Correo</th><th>Contraseña</th>' + '<th></th></tr></thead><tbody>' + admins + '</tbody></table></div></div>' +
+      '<div class="card"><h2>Grupos</h2><div class="row"><button class="primary" data-act="add-grupo">Agregar grupo</button></div><div class="tablewrap"><table><thead><tr><th>Nombre</th><th></th></tr></thead><tbody>' + g + '</tbody></table></div></div>';
+  }
+  function modalAreas(id) {
+    const u = byId(db.usuarios, id); if (!u || C.esAdmin(u) || u.rol === 'maestro') return;
+    const a = u.areas || { grupos: [], zonas: [] };
+    const chk = (attr, val, nombre, on) => '<label class="check"><input type="checkbox" ' + attr + '="' + esc(val) + '"' + (on ? ' checked' : '') + '> ' + esc(nombre) + '</label>';
+    abrirModal('<h2>Áreas de ' + esc(u.nombre) + '</h2><p class="muted">Recibirá los avisos de los <b>alumnos de los grupos</b> marcados (estén donde estén) y de <b>lo que ocurra en las zonas</b> marcadas.</p>' +
+      '<h3>Grupos</h3><div class="checks">' + db.grupos.map((g) => chk('data-ag', g.id, g.nombre, (a.grupos || []).indexOf(g.id) >= 0)).join('') + '</div>' +
+      '<h3>Zonas</h3><div class="checks">' + db.zonas.map((z) => chk('data-az', z.id, z.nombre + ' (' + TIPO_CORTO[z.tipo] + ')', (a.zonas || []).indexOf(z.id) >= 0)).join('') + '</div>' +
+      '<div class="row"><button data-act="modal-cerrar">Cancelar</button><button class="primary" data-act="areas-guardar" data-id="' + u.id + '">Guardar</button></div>');
+  }
+  function modalAddAdmin() {
+    abrirModal('<h2>Agregar administrador</h2><form id="formAdminNuevo" autocomplete="off">' +
+      '<label>Nombre<input id="fn_nombre" required></label><label>Cargo<input id="fn_cargo" placeholder="Ej. Subdirectora"></label>' +
+      '<label>Correo<input id="fn_email" type="email" required autocomplete="off" placeholder="nombre@escuela.mx"><small>Con este correo entrará desde cualquier dispositivo.</small></label>' +
+      '<label>Contraseña<input id="fn_pw" type="password" required autocomplete="new-password"><small>Mínimo 6 caracteres</small></label>' +
+      '<label>Repite la contraseña<input id="fn_pw2" type="password" required autocomplete="new-password"></label>' +
+      '<div class="row"><button type="button" data-act="modal-cerrar">Cancelar</button><button class="primary" type="submit">Crear administrador</button></div></form>');
+    $('#fn_nombre').focus();
+  }
+  function modalPw(id) {
+    const u = byId(db.usuarios, id); if (!u || !C.esAdmin(u)) return;
+    const propio = id === ui.userId;
+    if (!propio) { toast('En la nube cada administrador cambia su propia contraseña desde su sesión.', 'aviso'); return; }
+    abrirModal('<h2>Cambiar contraseña · ' + esc(u.nombre) + '</h2><form id="formPw" data-id="' + u.id + '" autocomplete="off">' +
+      (propio ? '<label>Contraseña actual<input id="pw_actual" type="password" required autocomplete="current-password"></label>' : '<p class="muted">Como administrador puedes definir una contraseña nueva para esta persona. Si tiene la sesión abierta, se cerrará.</p>') +
+      '<label>Contraseña nueva<input id="pw_nueva" type="password" required autocomplete="new-password"><small>Mínimo 6 caracteres</small></label>' +
+      '<label>Repite la contraseña nueva<input id="pw_nueva2" type="password" required autocomplete="new-password"></label>' +
+      '<div class="row"><button type="button" data-act="modal-cerrar">Cancelar</button><button class="primary" type="submit">Guardar contraseña</button></div></form>');
+    $(propio ? '#pw_actual' : '#pw_nueva').focus();
+  }
+
+  /* ---------- Asistencia ---------- */
+  function renderAsistencia() {
+    const fechaSel = ui.asFecha || C.fechaKey(ahora()), grupoSel = ui.asGrupo || '';
+    const [y, m, d] = fechaSel.split('-').map(Number);
+    const filas = C.asistenciaDelDia(db, new Date(y, (m || 1) - 1, d || 1, 12), grupoSel || null);
+    const cuenta = { presente: 0, retardo: 0, sin: 0 };
+    filas.forEach((f) => { cuenta[f.registro ? f.registro.estado : 'sin']++; });
+    const html = filas.map((f) => {
+      const r = f.registro;
+      return '<tr><td>' + esc(f.alumno.nombre) + '</td><td>' + esc(nombreGrupo(f.alumno.grupoId)) + '</td><td>' +
+        (r ? '<span class="pill ' + (r.estado === 'presente' ? 'ok' : 'warn') + '">' + (r.estado === 'presente' ? 'Presente' : 'Retardo') + '</span>' : '<span class="pill">Sin registro</span>') + '</td>' +
+        '<td>' + (r ? C.fmtHora(new Date(r.ts)) : '—') + '</td><td>' + (r ? esc(nombreZona(r.zonaId)) : '—') + '</td>' +
+        '<td>' + (r && fotoValida(r.foto) ? '<img class="thumb" style="width:40px;height:40px;border-radius:6px" src="' + r.foto + '" alt="">' : '') + '</td>' +
+        '<td class="acts">' + (r ? '<button class="sm" data-act="del-asistencia" data-id="' + r.id + '">Borrar registro</button>' : '') + '</td></tr>';
+    }).join('');
+    $('#tab-asistencia').innerHTML = '<div class="card"><h2>Asistencia</h2>' +
+      '<p class="muted">La lista no se pasa a mano: la cámara del salón registra a cada alumno la primera vez que lo reconoce ese día. «Sin registro» significa que aún no lo ha visto entrar.</p>' +
+      '<div class="row"><label>Fecha<input type="date" id="as_fecha" value="' + fechaSel + '"></label><label>Grupo<select id="as_grupo"><option value="">Todos</option>' + optsGrupos(grupoSel) + '</select></label>' +
+      '<button data-act="borrar-dia">Borrar los registros de este día (para probar de nuevo)</button></div>' +
+      '<div class="legend"><span class="pill ok">Presentes: ' + cuenta.presente + '</span><span class="pill warn">Retardos: ' + cuenta.retardo + '</span><span class="pill">Sin registro: ' + cuenta.sin + '</span></div>' +
+      '<div class="tablewrap"><table><thead><tr><th>Alumno</th><th>Grupo</th><th>Estado</th><th>Hora</th><th>Salón</th><th></th><th></th></tr></thead><tbody>' + (html || '<tr><td colspan="7" class="muted">Sin alumnos.</td></tr>') + '</tbody></table></div></div>';
+  }
+
+  /* ---------- Notificaciones ---------- */
+  function renderNotif() {
+    const u = byId(db.usuarios, ui.userId);
+    if (!u) return;
+    const admin = C.esAdmin(u);
+    const lista = C.notificacionesPara(db, u.id);
+    let regla;
+    if (admin) regla = 'Eres administrador: recibes <b>todas</b> las notificaciones de todas las zonas.';
+    else if (u.rol === 'maestro') {
+      const b = C.bloquesActivos(db, ahora(), 0).filter((x) => x.docenteId === u.id)[0];
+      regla = 'Solo recibes avisos de los <b>alumnos del grupo al que das clase en ese momento</b>. Ahora: ' + (b ? 'das <b>' + esc(b.materia) + '</b> a <b>' + esc(nombreGrupo(b.grupoId)) + '</b> (' + b.inicio + '–' + b.fin + ').' : 'no estás dando clase.');
+    } else {
+      const a = u.areas || {};
+      const g = (a.grupos || []).filter((id) => byId(db.grupos, id)).map(nombreGrupo), z = (a.zonas || []).filter((id) => byId(db.zonas, id)).map(nombreZona);
+      regla = g.length || z.length
+        ? 'Solo recibes avisos ' + [g.length ? 'de los alumnos de <b>' + esc(g.join(', ')) + '</b>' : '', z.length ? 'de lo que ocurra en <b>' + esc(z.join(', ')) + '</b>' : ''].filter(Boolean).join(' y ') + '.'
+        : 'Todavía no tienes áreas asignadas: un administrador debe asignártelas para que recibas avisos.';
+    }
+    const items = lista.map((n) => {
+      const leida = (n.leidaPor || []).indexOf(u.id) >= 0;
+      const para = admin ? ' · enviada a: ' + esc((n.destinatarios || []).map(nombreUsuario).join(', ')) : '';
+      return '<article class="notif ' + esc(n.severidad) + (leida || n.severidad === 'sutil' ? '' : ' nueva') + '">' +
+        (fotoValida(n.foto) ? '<img class="thumb" src="' + n.foto + '" alt="">' : '<div class="ph">' + (n.severidad === 'critica' ? '⚠' : n.severidad === 'aviso' ? '!' : n.severidad === 'sutil' ? '👤' : '✓') + '</div>') +
+        '<div><h4>' + esc(n.titulo) + '</h4><div>' + esc(n.detalle) + '</div><div class="meta">' + fmtFechaHora(n.ts) + para + '</div></div></article>';
+    }).join('');
+    $('#tab-notif').innerHTML = '<div class="card"><h2>Notificaciones de ' + esc(u.nombre) + '</h2><p>' + regla + '</p>' +
+      '<div class="row"><button data-act="leidas">Marcar todas como leídas</button>' + (admin ? '<button class="danger" data-act="borrar-notif">Borrar todas las notificaciones</button>' : '') + '</div></div>' +
+      (items || '<div class="card muted">No hay notificaciones todavía.</div>');
+    renderBadge();
+  }
+
+  /* ---------- Ajustes ---------- */
+  function aInputLocal(d) { return d.getFullYear() + '-' + C.pad(d.getMonth() + 1) + '-' + C.pad(d.getDate()) + 'T' + C.pad(d.getHours()) + ':' + C.pad(d.getMinutes()); }
+  function fijarHora(h, m) {
+    const d = ahora();
+    while (!C.esDiaDeClase(db, d)) d.setDate(d.getDate() + 1);
+    d.setHours(h, m, 0, 0); db.reloj.offsetMs = d.getTime() - Date.now(); guardar(); renderAll();
+  }
+  function renderAjustes() {
+    const cfg = C.cfgOf(db);
+    const num = (k, etiqueta, min, max, step, ayuda) => '<label>' + etiqueta + '<input type="number" data-cfg="' + k + '" min="' + min + '" max="' + max + '" step="' + step + '" value="' + cfg[k] + '"><small>' + ayuda + '</small></label>';
+    $('#tab-ajustes').innerHTML =
+      '<div class="card"><h2>Hora de prueba</h2><p class="muted">Para probar horarios sin esperar a que sea hora de clase. El reloj sigue avanzando desde la hora que fijes.</p>' +
+      '<div class="presets"><button data-hora="6:55">Entrada 06:55</button><button data-hora="7:03">Clase 1 · 07:03</button><button data-hora="7:25">Clase 1 · 07:25 (retardo)</button><button data-hora="8:00">Clase 2 · 08:00</button><button data-hora="10:45">Receso 10:45</button><button data-hora="11:10">Clase 5 · 11:10</button><button data-hora="20:00">Fuera de horario 20:00</button></div>' +
+      '<div class="row"><label>Fecha y hora exactas<input type="datetime-local" id="relojInput" value="' + aInputLocal(ahora()) + '"></label><button data-act="fijar-reloj">Fijar</button><button data-act="reloj-real">Volver a la hora real</button></div></div>' +
+      '<div class="card"><h2>Parámetros</h2><div class="row">' +
+      num('cooldownSeg', 'No repetir el mismo aviso (seg)', 5, 3600, 5, 'Evita decenas de avisos por la misma persona') +
+      num('confirmaciones', 'Detecciones seguidas para actuar', 1, 10, 1, 'Más = menos falsos positivos, más lento') +
+      num('umbralDistancia', 'Umbral de reconocimiento', 0.3, 0.8, 0.05, 'Menor = más estricto (0.5 recomendado)') +
+      num('toleranciaRetardoMin', 'Tolerancia de retardo (min)', 0, 60, 1, 'Desde el inicio de la primera clase del grupo') +
+      num('minutosAntes', 'Tomar asistencia desde (min antes)', 0, 60, 1, 'Antes de que empiece la clase') +
+      num('cooldownSinRegistroMin', 'Aviso discreto de persona sin registro: no repetir por zona (min)', 1, 240, 1, 'Solo en horario de clase y fuera de zonas restringidas') + '</div>' +
+      '<label class="check"><input type="checkbox" id="cfgSinReg"' + (cfg.avisarSinRegistro === false ? '' : ' checked') + '> Avisar de forma discreta cuando se vea a alguien sin rostro registrado (en la bandeja, sin ventana emergente). En zonas restringidas, fuera del horario de clase y en fines de semana el aviso siempre es llamativo.</label>' +
+      '<label class="check"><input type="checkbox" id="cfgFotos"' + (cfg.guardarFotos === false ? '' : ' checked') + '> Guardar una miniatura de la cara en las notificaciones y asistencias</label>' +
+      '<label class="check"><input type="checkbox" id="cfgFotosNube"' + (cfg.fotosEnNube ? ' checked' : '') + '> Enviar también esa miniatura a la nube (así la ven los demás dispositivos). Por defecto NO se envía: la miniatura solo se ve en el dispositivo que la tomó.</label>' + '</div>' +
+      '<div class="card"><h2>Acceso</h2><p class="muted">Los administradores entran con correo y contraseña (Supabase Auth) y el personal autorizado con nombre, puesto y código. Los códigos solo se ven aquí dentro, en «Personal y grupos». <b>Quién puede ver qué lo decide la base de datos</b> (seguridad por fila): el personal autorizado solo recibe de la nube sus propios avisos, sus clases, los nombres de grupos y zonas y su ficha; <b>no recibe alumnos, huellas faciales, asistencias ni a otras personas</b>, y no puede escribir nada salvo marcar sus avisos como leídos. El administrador ve y cambia todo. Esto no se ha auditado: es un prototipo.</p></div>' +
+          '<div class="card"><h2>Datos y privacidad</h2><p class="muted">Los datos (incluidas las <b>huellas faciales</b> de los alumnos) viven en el servidor (Supabase), no en este dispositivo. Las fotos de registro nunca se guardan: solo la huella numérica. El respaldo exportado contiene las huellas y los accesos del personal: guárdalo con cuidado.</p>' +
+      '<div class="row"><button data-act="exportar">Exportar respaldo</button><button data-act="pegar-respaldo">Importar pegando texto</button><label class="inline" style="flex-direction:row">Importar respaldo <input type="file" id="importar" accept=".json,application/json"></label></div>' +
+      '<div class="row"><button class="danger" data-act="borrar-rostros">Borrar todos los rostros registrados</button><button class="danger" data-act="reset">Restablecer datos de muestra</button><button data-act="permiso-notif">Activar avisos del navegador</button></div></div>' +
+      '<div class="card"><h2>Reconocimiento facial</h2><p>Estado: <b>' + (rt.libEstado === 'listo' ? 'listo' + (rt.libFuente ? (/^\.\//.test(rt.libFuente) ? ' (incluida en la app: funciona sin internet)' : ' (descargada de internet)') : '') : rt.libEstado === 'error' ? 'no disponible' : 'cargando') + '</b>. La biblioteca (face-api) y sus modelos pesan unos 8 MB; si la app no los trae incluidos, se descargan de internet al abrirla.</p>' +
+      (rt.libEstado === 'error' ? '<div class="banner bad"><b>No se pudo cargar.</b> Revisa tu conexión y pulsa la etiqueta roja de arriba para reintentar. Detalle:<ul>' + (rt.libErrores || []).map((x) => '<li>' + esc(x) + '</li>').join('') + '</ul></div>' : '') +
+      '<details><summary>Usarlo sin internet</summary><p class="muted">Guarda <code>face-api.js</code> en una carpeta <code>vendor/</code> junto a este archivo y los modelos <code>tiny_face_detector_model</code>, <code>face_landmark_68_model</code> y <code>face_recognition_model</code> (.json y .bin) en una carpeta <code>model/</code>. Como el navegador no deja leer modelos desde un archivo abierto directamente, sírvelo con <code>python3 -m http.server</code> y abre <code>http://localhost:8000</code>.</p></details></div>';
+    renderSync();
+  }
+
+  /* ---------- eventos globales ---------- */
+  document.addEventListener('change', (e) => {
+    const el = e.target;
+    if (el.id === 'la_ver') { $('#la_pw').type = el.checked ? 'text' : 'password'; return; }
+    if (!esAdminSesion()) return; // el personal autorizado no puede cambiar nada
+    if (el.id === 'selCamara') { ui.camaraId = el.value; ss.set('cam', ui.camaraId); rt.streak = {}; rt.lastCall = {}; renderPanelAhora(); return; }
+    if (el.id === 'selDispositivo') { ui.deviceId = el.value || null; if (rt.stream) { const was = rt.running; detenerMonitor(true); if (was) alternarMonitor(); } return; }
+    if (el.id === 'alGrupo') { ui.alGrupo = el.value; renderAlumnosFilas(); return; }
+    if (el.id === 'hoGrupo') { ui.hoGrupo = el.value; renderHorarios(); return; }
+    if (el.id === 'as_fecha' || el.id === 'as_grupo') { ui.asFecha = $('#as_fecha').value || null; ui.asGrupo = $('#as_grupo').value; renderAsistencia(); return; }
+    if (el.id === 'cfgSinReg') { db.config.avisarSinRegistro = el.checked; guardar(); return; }
+    if (el.id === 'cfgFotos') { db.config.guardarFotos = el.checked; guardar(); return; }
+    if (el.id === 'cfgFotosNube') { db.config.fotosEnNube = el.checked; guardar(); return; }
+    if (el.id === 'importar') { importar(el.files && el.files[0]); el.value = ''; return; }
+    if (el.dataset && el.dataset.cfg) {
+      const v = parseFloat(el.value); if (isNaN(v)) { renderAjustes(); return; }
+      db.config[el.dataset.cfg] = v; guardar(); if (el.dataset.cfg === 'umbralDistancia') reconstruirMatcher(); return;
+    }
+    if (!el.dataset || !el.dataset.tbl) return;
+    const fila = (db[el.dataset.tbl] || []).find((x) => x.id === el.dataset.id); if (!fila) return;
+    const f = el.dataset.f;
+    if (f === 'dias') {
+      const d = +el.dataset.dia, i = fila.dias.indexOf(d);
+      if (el.checked && i < 0) fila.dias.push(d); if (!el.checked && i >= 0) fila.dias.splice(i, 1);
+    } else if (f === 'ventanas') {
+      const r = C.parseVentanas(el.value);
+      if (r.errores.length) toast('No entendí: ' + r.errores.join(' | ') + '. Usa el formato 06:40-07:00 Entrada.', 'aviso');
+      fila.ventanas = r.ventanas; el.value = C.formatVentanas(r.ventanas);
+    } else fila[f] = el.value;
+    if (el.dataset.tbl === 'usuarios' && f === 'rol' && !fila.areas) fila.areas = { grupos: [], zonas: [] };
+    guardar();
+    if (f === 'tipo' || el.dataset.tbl === 'horarios' || (el.dataset.tbl === 'usuarios' && f === 'rol')) renderTab();
+    if (el.dataset.tbl === 'usuarios') renderHeader();
+  });
+
+  document.addEventListener('input', (e) => {
+    if (!esAdminSesion()) return;
+    if (e.target.id === 'enrolConsent' && rt.enrolAct) rt.enrolAct();
+    if (e.target.id === 'alBusca') { ui.alBusca = e.target.value; renderAlumnosFilas(); }
+  });
+
+  document.addEventListener('click', async (e) => {
+    const lt = e.target.closest('[data-lt]');
+    if (lt) { mostrarFormLogin(lt.dataset.lt, true); return; }
+    const nav = e.target.closest('#nav button');
+    if (nav) { irATab(nav.dataset.tab); return; }
+    const b0 = e.target.closest('[data-act]');
+    if (!esAdminSesion() && (!b0 || ['logout', 'leidas', 'modal-cerrar', 'confirmar-ok'].indexOf(b0.dataset.act) < 0)) return; // el personal autorizado solo puede leer sus avisos
+    const h = e.target.closest('[data-hora]');
+    if (h) { const [hh, mm] = h.dataset.hora.split(':').map(Number); fijarHora(hh, mm); return; }
+    if (e.target.closest('#chipLib') && rt.libEstado === 'error') { cargarLibreria(); return; }
+    if (e.target.closest('#btnCam')) { alternarMonitor(); return; }
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    const act = b.dataset.act, id = b.dataset.id;
+    switch (act) {
+      case 'modal-cerrar': cerrarModal(); if (rt.alCancelar) { const f = rt.alCancelar; rt.alCancelar = null; f(); } break;
+      case 'copiar-respaldo': {
+        const ta = $('#respaldoTxt'); if (!ta) break; ta.focus(); ta.select();
+        let ok = false; try { ok = document.execCommand('copy'); } catch (e2) { ok = false; }
+        if (!ok && navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(ta.value).then(() => toast('Copiado.', 'ok'), () => toast('No se pudo copiar: mantén pulsado el texto y elige «Copiar».', 'aviso')); break; }
+        toast(ok ? 'Copiado.' : 'No se pudo copiar: mantén pulsado el texto y elige «Copiar».', ok ? 'ok' : 'aviso'); break;
+      }
+      case 'pegar-respaldo': abrirModal('<h2>Importar respaldo</h2><p class="muted">Pega aquí el texto del respaldo. Reemplaza todos los datos actuales.</p><textarea id="respaldoPegado" rows="8" style="width:100%"></textarea><div class="row"><button data-act="modal-cerrar">Cancelar</button><button class="primary" data-act="importar-pegado">Importar</button></div>'); break;
+      case 'importar-pegado': { const ta = $('#respaldoPegado'); if (ta && ta.value.trim() && importarTexto(ta.value)) cerrarModal(); else if (ta && !ta.value.trim()) toast('Pega primero el texto del respaldo.', 'aviso'); break; }
+      case 'confirmar-ok': { const f = rt.onConfirm; rt.onConfirm = null; rt.alCancelar = null; cerrarModal(); if (f) f(); break; }
+      case 'simular': {
+        const v = $('#simAlumno').value;
+        if (!ui.camaraId) { toast('No hay cámaras configuradas.', 'aviso'); break; }
+        dispararEvento({ camaraId: ui.camaraId, alumnoId: v || null }, null); break;
+      }
+      case 'add-alumno': modalAddAlumno(); break;
+      case 'enrol': abrirRegistro(id); break;
+      case 'enrol-start': iniciarCaptura(id); break;
+      case 'enrol-cancel': cancelarRegistro(); break;
+      case 'enrol-guardar': guardarRostro(); break;
+      case 'quitar-rostro': { const a = byId(db.alumnos, id); if (a) { a.descriptores = []; guardar(); reconstruirMatcher(); renderAlumnos(); } break; }
+      case 'del': eliminar(b.dataset.tbl, id); break;
+      case 'add-zona': db.zonas.push({ id: C.uid('z'), nombre: 'Nueva zona', tipo: 'comun', ventanas: [] }); guardar(); renderZonas(); break;
+      case 'add-camara': db.camaras.push({ id: C.uid('c'), nombre: 'Nueva cámara', zonaId: (db.zonas[0] || {}).id || null }); guardar(); renderZonas(); break;
+      case 'add-grupo': db.grupos.push({ id: C.uid('g'), nombre: 'Nuevo grupo' }); guardar(); renderPersonal(); break;
+      case 'add-horario': {
+        const doc = db.usuarios.find((u) => u.rol === 'maestro'), zc = db.zonas.find((z) => z.tipo === 'clase');
+        if (!db.grupos.length || !doc || !zc) { toast('Necesitas al menos un grupo, un maestro y una zona de clase.', 'aviso'); break; }
+        db.horarios.push({ id: C.uid('h'), grupoId: (ui.hoGrupo && byId(db.grupos, ui.hoGrupo)) ? ui.hoGrupo : db.grupos[0].id, dias: [1, 2, 3, 4, 5], inicio: '07:00', fin: '07:50', materia: doc.detalle || 'Materia', docenteId: doc.id, zonaId: zc.id }); guardar(); renderHorarios(); break;
+      }
+      case 'del-asistencia': db.asistencias = db.asistencias.filter((r) => r.id !== id); guardar(); renderAsistencia(); break;
+      case 'borrar-dia': { const f = $('#as_fecha').value; db.asistencias = db.asistencias.filter((r) => r.fecha !== f); guardar(); renderAsistencia(); toast('Registros del ' + f + ' borrados.', 'ok'); break; }
+      case 'leidas': C.notificacionesPara(db, ui.userId).forEach((n) => { n.leidaPor = n.leidaPor || []; if (n.leidaPor.indexOf(ui.userId) < 0) n.leidaPor.push(ui.userId); }); guardar(); renderNotif(); break;
+      case 'borrar-notif': confirmar('¿Borrar TODAS las notificaciones de todas las personas?', () => { db.notificaciones = []; guardar(); renderNotif(); }); break;
+      case 'fijar-reloj': { const t = new Date($('#relojInput').value); if (isNaN(t)) { toast('Fecha no válida.', 'aviso'); break; } db.reloj.offsetMs = t.getTime() - Date.now(); guardar(); renderAll(); break; }
+      case 'reloj-real': db.reloj.offsetMs = 0; guardar(); renderAll(); break;
+      case 'exportar': exportar(); break;
+      case 'borrar-rostros': confirmar('¿Borrar los rostros registrados de todos los alumnos?', () => { db.alumnos.forEach((a) => { a.descriptores = []; }); guardar(); reconstruirMatcher(); toast('Rostros borrados.', 'ok'); renderTab(); }); break;
+      case 'reset': confirmar('¿Restablecer a los datos de muestra? Se pierden tus cambios, rostros, asistencias y notificaciones, y el personal recibe códigos nuevos. Las cuentas de administrador se conservan. Esto cambia los datos de TODA la escuela en la nube.', () => { restablecerMuestra(); renderAll(); toast('Datos de muestra restablecidos.', 'ok'); }); break;
+      case 'logout': cerrarSesion(); break;
+      case 'add-personal': db.usuarios.push({ id: C.uid('u'), nombre: 'Nueva persona', detalle: '', rol: 'maestro', codigo: C.generarCodigo(db), areas: { grupos: [], zonas: [] } }); guardar(); renderPersonal(); break;
+      case 'add-admin': modalAddAdmin(); break;
+      case 'cambiar-pw': modalPw(id); break;
+      case 'areas': modalAreas(id); break;
+      case 'areas-guardar': {
+        const u = byId(db.usuarios, id); if (!u || C.esAdmin(u) || u.rol === 'maestro') break;
+        u.areas = { grupos: $$('#modal [data-ag]').filter((x) => x.checked).map((x) => x.dataset.ag), zonas: $$('#modal [data-az]').filter((x) => x.checked).map((x) => x.dataset.az) };
+        guardar(); cerrarModal(); renderPersonal(); break;
+      }
+      case 'regen-codigo': {
+        const u = byId(db.usuarios, id); if (!u || C.esAdmin(u)) break;
+        confirmar('¿Generar un código nuevo para ' + u.nombre + '? El anterior dejará de funcionar y, si tiene la sesión abierta, se cerrará.', () => { u.codigo = C.generarCodigo(db); guardar(); renderPersonal(); toast('Código nuevo: ' + C.formatearCodigo(u.codigo), 'ok'); });
+        break;
+      }
+      case 'copiar-acceso': {
+        const u = byId(db.usuarios, id); if (!u || C.esAdmin(u)) break;
+        copiarTexto('VISIONIX\nNombre: ' + u.nombre + '\nPuesto: ' + C.PUESTOS[u.rol] + '\nCódigo de acceso: ' + C.formatearCodigo(u.codigo), 'Acceso de ' + u.nombre + ' copiado.'); break;
+      }
+      case 'permiso-notif':
+        try { if (!window.Notification) { toast('Este navegador no soporta avisos del sistema.', 'aviso'); break; } const p = await Notification.requestPermission(); toast(p === 'granted' ? 'Avisos del navegador activados (se muestran cuando esta pestaña está en segundo plano).' : 'Permiso no concedido.', p === 'granted' ? 'ok' : 'aviso'); }
+        catch (err) { toast('No se pudo pedir el permiso.', 'aviso'); }
+        break;
+      default: break;
+    }
+  });
+
+  function eliminar(tbl, id) {
+    if (tbl === 'usuarios') {
+      const uu = byId(db.usuarios, id);
+      if (id === ui.userId) { toast('No puedes eliminar tu propia cuenta mientras tienes la sesión abierta.', 'aviso'); return; }
+      if (C.esAdmin(uu) && db.usuarios.filter(C.esAdmin).length <= 1) { toast('Debe quedar al menos un administrador.', 'aviso'); return; }
+    }
+    const usos = {
+      grupos: () => db.alumnos.some((a) => a.grupoId === id) || db.horarios.some((h) => h.grupoId === id),
+      zonas: () => db.camaras.some((c) => c.zonaId === id) || db.horarios.some((h) => h.zonaId === id),
+      usuarios: () => db.horarios.some((h) => h.docenteId === id)
+    };
+    if (usos[tbl] && usos[tbl]()) { toast('No se puede eliminar: todavía se usa en otra tabla (alumnos, cámaras u horarios). Cámbialo primero.', 'aviso'); return; }
+    const nombre = (byId(db[tbl], id) || {}).nombre || '';
+    confirmar('¿Eliminar «' + nombre + '»?', () => {
+      db[tbl] = db[tbl].filter((x) => x.id !== id);
+      if (tbl === 'alumnos') { db.asistencias = db.asistencias.filter((r) => r.alumnoId !== id); reconstruirMatcher(); }
+      guardar(); renderAll();
+    });
+  }
+  function exportar() {
+    if (window.Capacitor) { // WebView de Android: no descarga archivos, así que se muestra el texto para copiarlo
+      abrirModal('<h2>Respaldo</h2><p class="muted">Copia este texto y guárdalo (notas, correo…). Para restaurarlo usa «Importar pegando texto». Contiene las huellas faciales y los accesos: guárdalo con cuidado.</p><textarea id="respaldoTxt" readonly rows="8" style="width:100%"></textarea><div class="row"><button class="primary" data-act="copiar-respaldo">Copiar</button><button data-act="modal-cerrar">Cerrar</button></div>');
+      $('#respaldoTxt').value = JSON.stringify(db); return;
+    }
+    try {
+      const blob = new Blob([JSON.stringify(db)], { type: 'application/json' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'visionix-respaldo.json';
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    } catch (e) { toast('No se pudo exportar.', 'aviso'); }
+  }
+  function importarTexto(txt) {
+    try {
+      let d = JSON.parse(txt);
+      if (!d || d.version !== 3 || !Array.isArray(d.alumnos) || !Array.isArray(d.zonas)) throw new Error('formato');
+      // se conservan las cuentas de administrador actuales (sus accesos no viajan en un respaldo)
+      d = normalizar(d);
+      d.usuarios = db.usuarios.filter(C.esAdmin).concat((d.usuarios || []).filter((u) => !C.esAdmin(u)));
+      d.usuarios.forEach((u) => { delete u.pw; });
+      db = d; memo.ultimo = {}; guardar(); reconstruirMatcher(); renderAll(); toast('Respaldo importado y enviado a la nube.', 'ok'); return true;
+    } catch (e) { toast('El respaldo no es válido.', 'aviso'); return false; }
+  }
+  function importar(file) {
+    if (!file) return;
+    const r = new FileReader();
+    r.onload = () => { importarTexto(r.result); };
+    r.readAsText(file);
+  }
+
+
+  /* ---------- inicio y cierre de sesión ---------- */
+  const LOCK_KEY = 'monitor_escolar_login_lock';
+  const leerLock = () => { try { return JSON.parse(localStorage.getItem(LOCK_KEY) || '{}') || {}; } catch (e) { return {}; } };
+  const escribirLock = (o) => { try { localStorage.setItem(LOCK_KEY, JSON.stringify(o)); } catch (e) { /* sin almacenamiento */ } };
+  function segundosBloqueo() { const l = leerLock(); return l.hasta && l.hasta > Date.now() ? Math.ceil((l.hasta - Date.now()) / 1000) : 0; }
+  function falloLogin() { const n = (leerLock().n || 0) + 1; escribirLock(n >= 5 ? { n: 0, hasta: Date.now() + 30000 } : { n, hasta: 0 }); }
+  function errorLogin(msg) { const el = $('#loginError'); el.textContent = msg || ''; el.hidden = !msg; }
+  /** Si otra pestaña o un administrador cambió la contraseña/código de esta cuenta, o la borró, la sesión deja de valer. */
+  function validarSesion() {
+    if (!ui.userId) return;
+    if (!byId(db.usuarios, ui.userId)) cerrarSesion('Tu acceso cambió o fue retirado. Vuelve a iniciar sesión.');
+  }
+  function fijarPuestosLogin() {
+    $('#lp_puesto').innerHTML = Object.keys(C.PUESTOS).map((k) => '<option value="' + k + '">' + C.PUESTOS[k] + '</option>').join('');
+  }
+  function mostrarFormLogin(cual, enfocar) {
+    const admin = cual === 'admin';
+    $('#formPersonal').hidden = admin; $('#formAdmin').hidden = !admin;
+    $$('[data-lt]').forEach((b) => b.classList.toggle('on', b.dataset.lt === cual));
+    errorLogin('');
+    if (enfocar) $(admin ? '#la_nombre' : '#lp_nombre').focus(); // solo si la persona tocó la pestaña (evita abrir el teclado al cerrar sesión)
+  }
+  function errorSetup(msg) { const el = $('#setupError'); el.textContent = msg || ''; el.hidden = !msg; }
+  /** Muestra la configuración inicial (si todavía no hay ningún administrador con contraseña) o el inicio de sesión. */
+  function renderLogin() {
+    const sinCfg = !nube.cfg;
+    const setup = !sinCfg && nube.hayAdmin === false;
+    $('#sinConfigCard').hidden = !sinCfg;
+    $('#setupCard').hidden = sinCfg || !setup; $('#loginCard').hidden = sinCfg || setup;
+    $('#loginAyuda').hidden = sinCfg || setup;   // en la configuración inicial no hay nada que mostrar: sin tarjeta vacía
+    $('#loginAyuda').innerHTML = sinCfg || setup ? '' :
+      '<details class="olvido"><summary>¿Olvidaste tu contraseña de administrador?</summary><p class="muted">Otro administrador no puede cambiarla por ti: avisa a quien administra el sistema. El personal autorizado no usa contraseña: un administrador le da un código nuevo.</p></details>';
+    renderSync();
+  }
+  function abrirSesion(u) {
+    ui.userId = u.id; escribirLock({});
+    errorLogin('');
+    ['#lp_nombre', '#lp_codigo', '#la_nombre', '#la_pw', '#fs_nombre', '#fs_cargo', '#fs_email', '#fs_pw', '#fs_pw2'].forEach((s) => { $(s).value = ''; });
+    errorSetup('');
+    $('#la_pw').type = 'password'; $('#la_ver').checked = false;
+    const admin = C.esAdmin(u);
+    ui.tab = admin ? (TABS_ADMIN.indexOf(ss.get('tab')) >= 0 ? ss.get('tab') : 'monitor') : 'notif';
+    renderHeader(); irATab(ui.tab);
+    recalcularNube();
+    if (admin) asegurarLibreria();
+    window.scrollTo(0, 0);
+  }
+  function cerrarSesion(aviso) {
+    cancelarRegistro();
+    if (rt.running || rt.stream) detenerMonitor(true);
+    ui.userId = null; ss.del('sesion'); cerrarModal();
+    $$('.tab').forEach((s) => { s.classList.remove('on'); if (s.id !== 'tab-monitor') s.innerHTML = ''; }); // no dejar datos de administración en pantalla
+    $('#panelAhora').innerHTML = ''; $('#bitacora').innerHTML = ''; rt.bitacora = []; $('#toasts').innerHTML = ''; // sin avisos de la sesión anterior en pantalla
+    renderHeader(); renderLogin(); errorLogin('');
+    mostrarFormLogin($('#formAdmin').hidden ? 'personal' : 'admin');
+    if (aviso) toast(aviso, 'aviso');
+    nubeSalir();   // cierra también la sesión de Supabase de este dispositivo y borra de la memoria lo descargado
+  }
+  function restablecerMuestra() {
+    const admins = db.usuarios.filter(C.esAdmin);
+    db = C.datosMuestra(); db.usuarios = admins.concat(db.usuarios);
+    memo.ultimo = {}; rt.bitacora = []; guardar(); reconstruirMatcher();
+  }
+
+  document.addEventListener('submit', async (e) => {
+    const f = e.target;
+    if (f.id === 'formSetup') {
+      e.preventDefault();
+      await nubeSubmitSetup(); return;
+    }
+    if (f.id === 'formPersonal' || f.id === 'formAdmin') {
+      e.preventDefault();
+      await nubeSubmitLogin(f.id === 'formPersonal'); return;
+    }
+    if (!esAdminSesion()) return;
+    if (f.id === 'formAdminNuevo') {
+      e.preventDefault();
+      const nombre = $('#fn_nombre').value.trim(), pw = $('#fn_pw').value;
+      if (!nombre) { toast('Escribe el nombre.', 'aviso'); return; }
+      const err = C.validarPw(pw); if (err) { toast(err, 'aviso'); return; }
+      if (pw !== $('#fn_pw2').value) { toast('Las contraseñas no coinciden.', 'aviso'); return; }
+      if (db.usuarios.some((x) => C.esAdmin(x) && C.normNombre(x.nombre) === C.normNombre(nombre))) { toast('Ya hay un administrador con ese nombre.', 'aviso'); return; }
+      const email = $('#fn_email').value.trim();
+      if (!N.emailValido(email)) { toast('Escribe un correo válido.', 'aviso'); return; }
+      if (db.usuarios.some((x) => C.esAdmin(x) && String(x.email || '').toLowerCase() === email.toLowerCase())) { toast('Ya hay un administrador con ese correo.', 'aviso'); return; }
+      const btn = $('#formAdminNuevo button[type=submit]'); btn.disabled = true;
+      try { await nubeAgregarAdmin({ nombre, cargo: $('#fn_cargo').value.trim(), email, pw }); cerrarModal(); renderPersonal(); toast('Administrador agregado. Ya puede entrar con su correo y contraseña.', 'ok'); }
+      catch (err) { toast(msgError(err), 'aviso'); }
+      finally { btn.disabled = false; }
+      return;
+    }
+    if (f.id === 'formPw') {
+      e.preventDefault();
+      const u = byId(db.usuarios, f.dataset.id); if (!u || !C.esAdmin(u)) return;
+      const propio = u.id === ui.userId;
+      if (!propio) return;
+      const nueva = $('#pw_nueva').value, err = C.validarPw(nueva); if (err) { toast(err, 'aviso'); return; }
+      if (nueva !== $('#pw_nueva2').value) { toast('Las contraseñas no coinciden.', 'aviso'); return; }
+      try { await nubeCambiarPw($('#pw_actual').value, nueva); cerrarModal(); toast('Contraseña actualizada.', 'ok'); } catch (err2) { toast(msgError(err2), 'aviso'); }
+    }
+  });
+
+  /* ---------- la nube (Supabase) ----------
+     Los datos viven en el proyecto de Supabase de la escuela y no en este dispositivo.
+     La app sigue trabajando con su objeto «db» en memoria; nube.js decide qué enviar y cómo mezclar lo que llega.
+     Administradores: cuenta con correo y contraseña. Personal autorizado: sesión anónima + función entrar_personal (nombre, puesto y código).
+     Quién ve qué lo decide la base de datos (supabase/esquema.sql), no esta interfaz. */
+  const esErrorDeRed = (e) => !!e && (/failed to fetch|networkerror|load failed|network request failed|fetch failed|timeout/i.test(String(e.message || e)) || (typeof e.status === 'number' && (e.status === 0 || e.status >= 500)));
+  const trozos = (a, n) => { const r = []; for (let i = 0; i < a.length; i += n) r.push(a.slice(i, i + n)); return r; };
+
+  function ponerEstadoNube(e, detalle) { nube.estado = e; nube.detalle = detalle || ''; renderSync(); }
+  /** Estado visible: en línea solo si el canal en tiempo real está unido y la última petición salió bien. */
+  function recalcularNube() {
+    if (!nube.rol) return;
+    ponerEstadoNube(nube.canalOk && nube.redOk ? 'en_linea' : 'sin_conexion');
+  }
+  /** Aviso en la pantalla de inicio: solo cuando hay algo que decir (conectando, sin conexión, error). */
+  function textoEstadoNube() {
+    switch (nube.estado) {
+      case 'inicio': return 'Conectando…';
+      case 'conectando': return 'Descargando los datos…';
+      case 'sin_conexion': return 'Sin conexión con el servidor. Revisa tu internet.';
+      case 'error': return nube.detalle || 'No se pudo conectar con el servidor.';
+      default: return '';
+    }
+  }
+  function renderSync() {
+    const chip = $('#chipSync');
+    if (!chip) return;
+    const e = nube.estado;
+    chip.hidden = !nube.cfg;
+    chip.className = 'chip' + (e === 'en_linea' ? ' ok' : e === 'error' ? ' err' : '');
+    chip.textContent = e === 'en_linea' ? '☁ En línea' + (nube.presencia > 1 ? ' · ' + nube.presencia + ' dispositivos' : '')
+      : e === 'sin_conexion' ? '☁ Sin conexión · se reenviará al volver' : e === 'error' ? '☁ Error de conexión' : e === 'listo' ? '☁ Conectado' : '☁ Conectando…';
+    const el = $('#estadoNube');
+    if (el) { const t = nube.cfg && !ui.userId ? textoEstadoNube() : ''; el.textContent = t; el.hidden = !t; el.className = 'banner ' + (e === 'error' ? 'bad' : e === 'sin_conexion' ? 'warn' : 'info'); }
+  }
+
+  /* ----- librería y cliente ----- */
+  const FUENTES_NUBE = ['./vendor/supabase.js', 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2', 'https://unpkg.com/@supabase/supabase-js@2'];
+  async function nubeCargarLib() {
+    if (window.supabase && window.supabase.createClient) return;
+    for (const src of FUENTES_NUBE) {
+      try { await cargarScript(src); if (window.supabase && window.supabase.createClient) return; } catch (e) { /* probar la siguiente fuente */ }
+    }
+    throw new Error('No se pudo cargar un componente necesario de la aplicación. Revisa tu internet.');
+  }
+  function nubeCliente() {
+    if (nube.cli) return nube.cli;
+    nube.cli = window.supabase.createClient(nube.cfg.url, nube.cfg.clave, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false } });
+    nube.cli.auth.onAuthStateChange((ev) => {
+      // (no se llama a Supabase desde aquí dentro: se difiere)
+      if (ev === 'SIGNED_OUT' && ui.userId && !nube.saliendo) setTimeout(() => { if (ui.userId && !nube.saliendo) cerrarSesion('Tu sesión terminó. Vuelve a iniciar sesión.'); }, 0);
+    });
+    return nube.cli;
+  }
+  async function nubeConsultarAdmin() {
+    const { data, error } = await nubeCliente().rpc('hay_admin');
+    if (error) throw error;
+    nube.hayAdmin = !!data;
+  }
+
+  /* ----- descarga ----- */
+  async function nubeDescargar(tabla) {
+    const cli = nubeCliente(), filas = [];
+    for (let desde = 0; ; desde += 1000) {
+      const { data, error } = await cli.from(tabla).select('*').order('orden', { ascending: true }).order('id', { ascending: true }).range(desde, desde + 999);
+      if (error) throw error;
+      Array.prototype.push.apply(filas, data || []);
+      if (!data || data.length < 1000) break;
+    }
+    return filas;
+  }
+  /** Descarga todo lo que esta cuenta puede ver y lo mezcla en «destino» (por defecto, la base en uso). Devuelve true si algo cambió. */
+  async function nubeCargarTodo(destino, est) {
+    destino = destino || db; est = est || nube.est;
+    const orden = ['ajustes'].concat(N.LISTAS);   // primero los ajustes (de ahí sale «fotosEnNube»)
+    const res = await Promise.all(orden.map(nubeDescargar));
+    let cambio = false;
+    orden.forEach((t, i) => { if (N.fusionar(destino, est, t, res[i], { completa: true, yo: nube.yo, fotos: !!destino.config.fotosEnNube })) cambio = true; });
+    return cambio;
+  }
+  const opsNube = () => ({ rol: nube.rol, yo: nube.yo, fotos: !!db.config.fotosEnNube });
+
+  /** Con una sesión de Supabase abierta: comprueba el perfil, descarga los datos, abre el tiempo real y devuelve la persona (o null si esta sesión no tiene permisos). */
+  async function nubeEntrarConSesion() {
+    const cli = nubeCliente();
+    const { data: perfil, error } = await cli.from('perfiles').select('rol,persona_id').maybeSingle();
+    if (error) throw error;
+    if (!perfil) return null;
+    ponerEstadoNube('conectando');
+    const nuevo = N.dbVacia(), est = N.crearEstado();
+    nube.rol = perfil.rol; nube.yo = perfil.persona_id;
+    await nubeCargarTodo(nuevo, est);
+    const u = byId(nuevo.usuarios, nube.yo);
+    if (!u) { nube.rol = null; nube.yo = null; return null; }
+    db = nuevo; nube.est = est; nube.redOk = true; nube.errorEnvio = '';
+    reconstruirMatcher();
+    nubeIniciarFlujo();
+    return u;
+  }
+
+  /* ----- tiempo real y revisión periódica ----- */
+  function nubeDetenerFlujo() {
+    clearInterval(nube.pollT); nube.pollT = null; clearTimeout(nube.reconciliarT);
+    const ch = nube.canal; nube.canal = null; nube.canalOk = false;
+    if (ch && nube.cli) { try { nube.cli.removeChannel(ch); } catch (e) { /* ya cerrado */ } }
+  }
+  function nubeIniciarFlujo() {
+    nubeDetenerFlujo();
+    const cli = nubeCliente();
+    const ch = cli.channel('visionix', { config: { presence: { key: nube.clave } } });
+    N.TABLAS.forEach((t) => ch.on('postgres_changes', { event: '*', schema: 'public', table: t }, (p) => nubeEvento(t, p)));
+    ch.on('presence', { event: 'sync' }, () => { if (nube.canal !== ch) return; nube.presencia = Object.keys(ch.presenceState()).length; renderSync(); });
+    nube.canal = ch;
+    ch.subscribe((st) => {
+      if (nube.canal !== ch) return;
+      if (st === 'SUBSCRIBED') {
+        nube.canalOk = true; recalcularNube();
+        try { const r = ch.track({ rol: nube.rol, t: Date.now() }); if (r && r.catch) r.catch(() => {}); } catch (e) { /* sin presencia */ }
+        nubePull(true);   // por si se perdió algo mientras el canal estuvo caído
+      } else if (st === 'CHANNEL_ERROR' || st === 'TIMED_OUT' || st === 'CLOSED') { nube.canalOk = false; recalcularNube(); }
+    });
+    nube.tick = 0;   // cada 10 s se comprueba que el acceso sigue vigente (barato); cada minuto se vuelve a descargar todo por si el tiempo real se perdió algo
+    nube.pollT = setInterval(() => { nube.tick++; nubePull(nube.tick % 6 === 0); }, 10000);
+  }
+  function renderRemoto() {
+    renderHeader();
+    if (!ui.userId) return;
+    const el = document.activeElement;
+    const enUso = !$('#modal').hidden || !!rt.enrolPend || !!(el && /^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName) && el.closest('.tab'));
+    if (ui.tab === 'notif' || ui.tab === 'asistencia') renderTab();            // listas de solo lectura
+    else if (ui.tab === 'monitor') renderPanelAhora();                         // no tocar la cámara en marcha
+    else if (!enUso) renderTab();                                              // no interrumpir una edición
+  }
+  /** Después de aplicar cambios que llegaron de la nube: vuelve a dibujar sin molestar lo que se esté haciendo. */
+  function nubeAlCambiar(prev, tabla) {
+    if (tabla === 'alumnos' || !tabla) reconstruirMatcher();
+    validarSesion();
+    if (!ui.userId) return;
+    renderRemoto();
+    avisarNuevas(prev);
+  }
+  function nubeEvento(tabla, p) {
+    if (!ui.userId || !p) return;
+    const prev = new Set(db.notificaciones.map((n) => n.id));
+    let cambio = false;
+    if (p.eventType === 'DELETE') cambio = N.quitar(db, nube.est, tabla, p.old && p.old.id);
+    else if (p.new) cambio = N.fusionar(db, nube.est, tabla, [p.new], { completa: false, yo: nube.yo, fotos: !!db.config.fotosEnNube });
+    if (cambio) nubeAlCambiar(prev, tabla);
+  }
+  /** Revisión completa: comprueba que el acceso sigue vigente y trae lo que se haya escapado. */
+  async function nubePull(completa) {
+    if (!ui.userId || !nube.cli || nube.pulling || nube.saliendo) return;
+    nube.pulling = true;
+    try {
+      const { data: perfil, error } = await nube.cli.from('perfiles').select('rol,persona_id').maybeSingle();
+      if (error) throw error;
+      if (!perfil || perfil.persona_id !== nube.yo || perfil.rol !== nube.rol) { cerrarSesion('Tu acceso cambió o fue retirado. Vuelve a iniciar sesión.'); return; }
+      nube.redOk = true; recalcularNube();
+      if (completa === false) return;          // revisión ligera: solo se comprobó que el acceso sigue vigente
+      const prev = new Set(db.notificaciones.map((n) => n.id));
+      const cambio = await nubeCargarTodo();
+      if (cambio) nubeAlCambiar(prev);
+    } catch (e) {
+      if (esErrorDeRed(e)) { nube.redOk = false; recalcularNube(); }
+    } finally { nube.pulling = false; }
+  }
+  /** Si algo no se pudo guardar por una razón que no es la red (permisos, reglas), se vuelve a lo que hay en la nube para no quedar desincronizados. */
+  async function nubeResincronizar() {
+    try {
+      const nuevo = N.dbVacia(), est = N.crearEstado();
+      await nubeCargarTodo(nuevo, est);
+      if (!ui.userId) return;
+      db = nuevo; nube.est = est; reconstruirMatcher(); validarSesion();
+      if (ui.userId) renderAll();
+    } catch (e) { /* si tampoco hay red, el próximo ciclo lo intenta */ }
+  }
+
+  /* ----- envío ----- */
+  function nubeProgramar() {
+    if (!nube.cfg || !nube.rol || !nube.cli) return;
+    clearTimeout(nube.pushT); nube.pushT = setTimeout(nubeEnviar, 400);
+  }
+  async function nubeEjecutar(plan) {
+    const cli = nubeCliente();
+    const ok = (r) => { if (r && r.error) throw r.error; };
+    for (const tabla of Object.keys(plan.upserts)) {
+      const filas = plan.upserts[tabla];
+      // nuevas (con posición) y ediciones (sin ella) van en lotes distintos: así una edición nunca cambia la posición
+      const lotes = trozos(filas.filter((f) => f.orden !== undefined), 100).concat(trozos(filas.filter((f) => f.orden === undefined), 100));
+      for (const lote of lotes) ok(await cli.from(tabla).upsert(lote, { onConflict: 'id' }));
+    }
+    for (const tabla of Object.keys(plan.inserts)) for (const lote of trozos(plan.inserts[tabla], 100)) ok(await cli.from(tabla).upsert(lote, { onConflict: 'id', ignoreDuplicates: true }));
+    for (const lote of trozos(plan.leidas, 200)) ok(await cli.rpc('marcar_leidas', { p_ids: lote }));
+    for (const tabla of Object.keys(plan.borrar)) for (const lote of trozos(plan.borrar[tabla], 100)) ok(await cli.from(tabla).delete().in('id', lote));
+  }
+  async function nubeEnviar() {
+    if (!nube.cfg || !nube.rol || !nube.cli) return;
+    if (nube.enviando) { nube.otraVez = true; return; }
+    nube.enviando = true;
+    try {
+      do {
+        nube.otraVez = false;
+        const op = opsNube(), plan = N.planificarEnvio(db, nube.est, op);
+        if (N.planVacio(plan)) break;
+        await nubeEjecutar(plan);
+        N.confirmarEnvio(db, nube.est, plan, op);
+        nube.redOk = true; nube.errorEnvio = '';
+        // si otro dispositivo cambió lo mismo a la vez, la nube se quedó con una de las dos versiones: poco después se comprueba cuál para que todos terminen iguales
+        if (Object.keys(plan.upserts).length || Object.keys(plan.borrar).length) { clearTimeout(nube.reconciliarT); nube.reconciliarT = setTimeout(() => nubePull(true), 1500); }
+      } while (nube.otraVez);
+      nube.reintentos = 0; recalcularNube();
+    } catch (e) {
+      nube.errorEnvio = msgError(e);
+      if (esErrorDeRed(e)) {
+        nube.redOk = false; recalcularNube(); nube.reintentos++;
+        clearTimeout(nube.pushT); nube.pushT = setTimeout(nubeEnviar, Math.min(30000, 3000 * nube.reintentos));
+      } else {
+        toast('No se pudo guardar en la nube: ' + nube.errorEnvio + ' Se restauró lo que hay en la nube.', 'aviso');
+        nube.enviando = false; await nubeResincronizar();
+      }
+    } finally { nube.enviando = false; }
+  }
+
+  /* ----- sesión ----- */
+  async function nubeLoginPersonal(d) {
+    const cli = nubeCliente();
+    const { data: s } = await cli.auth.getSession();
+    if (!s.session || !(s.session.user && s.session.user.is_anonymous)) {
+      if (s.session) await cli.auth.signOut({ scope: 'local' });
+      const r = await cli.auth.signInAnonymously();
+      if (r.error) throw r.error;
+    }
+    const { data, error } = await cli.rpc('entrar_personal', { p_nombre_norm: C.normNombre(d.nombre), p_puesto: d.puesto, p_codigo_norm: C.normCodigo(d.codigo) });
+    if (error) throw error;
+    return data;
+  }
+  async function nubeLoginAdmin(email, password) {
+    const cli = nubeCliente();
+    const { data: s } = await cli.auth.getSession();
+    if (s.session) await cli.auth.signOut({ scope: 'local' });
+    const r = await cli.auth.signInWithPassword({ email, password });
+    if (r.error) throw r.error;
+    const u = await nubeEntrarConSesion();
+    if (!u || nube.rol !== 'admin') {
+      nube.rol = null; nube.yo = null; nubeDetenerFlujo();
+      await cli.auth.signOut({ scope: 'local' });
+      throw new Error('Esa cuenta existe pero no es de administrador de VISIONIX.');
+    }
+    return u;
+  }
+  async function nubeCrearPrimerAdmin(d) {
+    const cli = nubeCliente();
+    const { data: s } = await cli.auth.getSession();
+    if (s.session) await cli.auth.signOut({ scope: 'local' });
+    const r = await cli.auth.signUp({ email: d.email, password: d.pw });
+    if (r.error) throw r.error;
+    if (!r.data || !r.data.session) throw new Error('La cuenta se creó, pero el servidor exige confirmar el correo antes de entrar.');
+    const id = C.uid('u');
+    const { data, error } = await cli.rpc('crear_primer_admin', { p_id: id, p_nombre: d.nombre, p_detalle: d.cargo || '' });
+    if (error) { await cli.auth.signOut({ scope: 'local' }); throw error; }
+    const nuevo = d.muestra ? C.datosMuestra() : N.dbVacia();
+    nuevo.usuarios = [Object.assign({}, data)].concat(nuevo.usuarios);
+    db = nuevo; nube.est = N.crearEstado(); nube.rol = 'admin'; nube.yo = id; nube.redOk = true; nube.errorEnvio = '';
+    ponerEstadoNube('conectando');
+    try { await nubeEnviar(); } catch (e) { /* se reintenta solo */ }
+    reconstruirMatcher();
+    nubeIniciarFlujo();
+    return byId(db.usuarios, id);
+  }
+  /** Cuenta nueva de otro administrador: se crea con un cliente aparte (para no cerrar la sesión actual) y luego se le da el perfil. */
+  async function nubeAgregarAdmin(d) {
+    const aux = window.supabase.createClient(nube.cfg.url, nube.cfg.clave, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false, storageKey: 'visionix-aux' } });
+    const r = await aux.auth.signUp({ email: d.email, password: d.pw });
+    if (r.error) throw r.error;
+    if (!r.data || !r.data.user) throw new Error('No se pudo crear la cuenta.');
+    if (r.data.user.identities && !r.data.user.identities.length) throw new Error('Ya existe una cuenta con ese correo.');
+    const id = C.uid('u');
+    const { data, error } = await nubeCliente().rpc('registrar_admin', { p_auth_uid: r.data.user.id, p_id: id, p_nombre: d.nombre, p_detalle: d.cargo || '' });
+    if (error) throw error;
+    N.fusionar(db, nube.est, 'usuarios', [{ id, data, nombre_norm: C.normNombre(d.nombre), puesto: 'directivo', codigo_norm: '' }], { completa: false });
+  }
+  async function nubeCambiarPw(actual, nueva) {
+    const u = byId(db.usuarios, ui.userId), cli = nubeCliente();
+    const v = await cli.auth.signInWithPassword({ email: u.email, password: actual });
+    if (v.error) throw new Error('La contraseña actual no es correcta.');
+    const r = await cli.auth.updateUser({ password: nueva });
+    if (r.error) throw r.error;
+  }
+  /** Cierra la sesión de Supabase de este dispositivo (solo de este: no toca las de otros). Primero se envía lo pendiente. */
+  function nubeSalir() {
+    const cli = nube.cli; if (!cli || nube.saliendo) return nube.saliendo || Promise.resolve();
+    const era = nube.rol;
+    nube.saliendo = (async () => {
+      clearTimeout(nube.pushT);
+      try { await Promise.race([nubeEnviar(), sleep(4000)]); } catch (e) { /* se pierde lo pendiente */ }
+      nubeDetenerFlujo();
+      try { if (era === 'personal') await cli.rpc('salir_personal'); } catch (e) { /* idem */ }
+      try { await cli.auth.signOut({ scope: 'local' }); } catch (e) { /* idem */ }
+      db = N.dbVacia(); nube.est = N.crearEstado(); nube.rol = null; nube.yo = null; nube.presencia = 0; nube.errorEnvio = '';
+      try { await nubeConsultarAdmin(); } catch (e) { /* sin red: se vuelve a preguntar al conectar */ }
+      ponerEstadoNube('listo'); renderLogin();
+      nube.saliendo = null;
+    })();
+    return nube.saliendo;
+  }
+  /* ----- pantallas de entrada ----- */
+  async function nubeSubmitSetup() {
+    if (nube.hayAdmin !== false) { renderLogin(); return; }
+    const nombre = $('#fs_nombre').value.trim(), email = $('#fs_email').value.trim(), pw = $('#fs_pw').value;
+    const err = !nombre ? 'Escribe tu nombre.' : !N.emailValido(email) ? 'Escribe un correo válido.' : (C.validarPw(pw) || (pw !== $('#fs_pw2').value ? 'Las contraseñas no coinciden.' : null));
+    if (err) { errorSetup(err); return; }
+    const btn = $('#formSetup button[type=submit]'); btn.disabled = true; errorSetup('');
+    try {
+      await nube.saliendo;
+      const u = await nubeCrearPrimerAdmin({ nombre, cargo: $('#fs_cargo').value.trim(), email, pw, muestra: $('#fs_muestra').checked });
+      abrirSesion(u); toast('Cuenta de administrador creada.', 'ok');
+    } catch (e) {
+      const msg = msgError(e);
+      try { await nubeConsultarAdmin(); } catch (e2) { /* sin red */ }
+      renderLogin(); (nube.hayAdmin === false ? errorSetup : errorLogin)(msg);
+    } finally { btn.disabled = false; }
+  }
+  async function nubeSubmitLogin(personal) {
+    const espera = segundosBloqueo();
+    if (espera) { errorLogin('Demasiados intentos. Espera ' + espera + ' s para volver a intentar.'); return; }
+    const btn = $((personal ? '#formPersonal' : '#formAdmin') + ' button[type=submit]'); btn.disabled = true; errorLogin('');
+    try {
+      await nube.saliendo;
+      let u = null;
+      if (personal) {
+        const r = await nubeLoginPersonal({ nombre: $('#lp_nombre').value, puesto: $('#lp_puesto').value, codigo: $('#lp_codigo').value });
+        if (r && r.ok) u = await nubeEntrarConSesion();
+        else if (r && r.motivo === 'bloqueado') { errorLogin('Demasiados intentos con ese nombre. Espera ' + Math.max(1, Math.ceil((r.espera || 60) / 60)) + ' min para volver a intentar.'); return; }
+        else if (r && r.motivo === 'es_admin') { errorLogin('Esta sesión ya es de administrador.'); return; }
+        else { falloLogin(); const w = segundosBloqueo(); errorLogin(w ? 'Demasiados intentos. Espera ' + w + ' s para volver a intentar.' : 'Nombre, puesto o código incorrectos.'); return; }
+      } else u = await nubeLoginAdmin($('#la_nombre').value.trim(), $('#la_pw').value);
+      if (!u) { errorLogin('No se pudo abrir la sesión: esta cuenta no tiene acceso.'); return; }
+      abrirSesion(u);
+    } catch (e) {
+      const msg = msgError(e);
+      if (/incorrectos/.test(msg)) { falloLogin(); const w = segundosBloqueo(); errorLogin(w ? 'Demasiados intentos. Espera ' + w + ' s para volver a intentar.' : msg); } else errorLogin(msg);
+    } finally { btn.disabled = false; }
+  }
+  /** Al abrir la app con la nube conectada: restaura la sesión de Supabase si la hay; si no, pregunta si ya existe un administrador. */
+  async function nubeArrancar() {
+    ponerEstadoNube('inicio'); renderLogin();
+    try { await nubeCargarLib(); } catch (e) { ponerEstadoNube('error', e.message); return; }
+    try {
+      const cli = nubeCliente();
+      const { data } = await cli.auth.getSession();
+      if (data && data.session) {
+        const u = await nubeEntrarConSesion();
+        if (u) { abrirSesion(u); return; }
+        if (!(data.session.user && data.session.user.is_anonymous)) await cli.auth.signOut({ scope: 'local' });   // una cuenta con correo sin perfil: no sirve de nada
+      }
+      await nubeConsultarAdmin();
+      ponerEstadoNube('listo');
+    } catch (e) { ponerEstadoNube(esErrorDeRed(e) ? 'sin_conexion' : 'error', msgError(e)); }
+    renderLogin();
+  }
+  /* si el teléfono se durmió o volvió la red, el tiempo real pudo quedar dormido */
+  function nubeDespertar() { if (nube.cfg && ui.userId) nubePull(true); else if (nube.cfg && nube.cli && nube.hayAdmin === null) nubeArrancar(); }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) nubeDespertar(); });
+  window.addEventListener('online', nubeDespertar);
+  window.addEventListener('offline', () => { if (nube.cfg && ui.userId) { nube.redOk = false; recalcularNube(); } });
+
+  /* ---------- arranque ---------- */
+  renderHeader(); renderLogin(); fijarPuestosLogin();
+  if (nube.cfg) nubeArrancar();
+  setInterval(() => { tickReloj(); if (ui.userId && ui.tab === 'monitor') renderPanelAhora(); }, 1000);
+  window.__monitor = { get db() { return db; }, rt, ui, nube, dispararEvento, Core: C }; // utilidad para pruebas
+})();
+</script>
+<script>
+/* Instalable y con caché sin internet. En la app Android (Capacitor) no hace falta: los archivos ya van dentro del APK. */
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol) && !window.Capacitor) {
+  window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+}
+</script>
+</body>
+</html>

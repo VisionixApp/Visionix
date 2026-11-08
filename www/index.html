@@ -256,6 +256,7 @@ select[data-f="rol"]{min-width:140px}
               <li>En <b>Ajustes → Hora de prueba</b>, elige por ejemplo «Clase 1 · 07:03» para que el horario de muestra coincida con el momento de clase.</li>
               <li>En <b>Monitor</b>, elige la cámara «Cámara Salón 1°1» (y que tu alumno sea del grupo 1°1) y pulsa «Iniciar cámara». Al reconocerte se marca tu asistencia, una sola vez al día.</li>
               <li>Cambia a «Cámara Azotea» (restringida) o «Cámara Patio» (común, fuera de horario) para generar avisos.</li>
+              <li>Alumno en un salón que no es el suyo (por ejemplo, tú de 1°1 frente a «Cámara Salón 1°2») → alerta «fuera de su salón», haya o no clase en ese momento. Y si fijas en <b>Ajustes → Hora de prueba</b> un sábado o domingo, cualquier alumno que se vea en cualquier cámara genera una alerta <b>llamativa</b> de fin de semana.</li>
               <li>Persona sin rostro registrado: en el Monitor elige «Persona no identificada» en el simulador. En horario de clase y en una zona normal solo deja un aviso <b>discreto</b> en la bandeja; en «Cámara Azotea», fuera de horario o en fin de semana (usa «Hora de prueba») el aviso es <b>llamativo</b>.</li>
               <li>Para ver lo que recibe el personal: pulsa «Cerrar sesión» y entra como «Personal autorizado» con nombre, puesto y código (los códigos están en «Personal y grupos»; para ver los avisos llegar en vivo, abre VISIONIX en otro dispositivo o en una ventana de incógnito con esa sesión). Cada maestro solo recibe los avisos de los alumnos del grupo al que da clase en ese momento (en el panel «Ahora según el horario» ves qué maestro tiene cada grupo); la tutora de 1°1, la secretaria y el orientador de muestra reciben los de sus áreas.</li>
             </ol>
@@ -400,6 +401,12 @@ select[data-f="rol"]{min-width:140px}
     return (db.horarios || []).filter((b) => b.grupoId === grupoId && (b.dias || []).indexOf(dia) >= 0 && hhmmToMin(b.inicio) > m)
       .sort((x, y) => hhmmToMin(x.inicio) - hhmmToMin(y.inicio))[0] || null;
   }
+  /** Zonas de clase que le corresponden a un grupo: todas las zonas donde su horario lo ubica (su salón, un laboratorio, etc.). */
+  function salonesDelGrupo(db, grupoId) {
+    return unique((db.horarios || []).filter((b) => b.grupoId === grupoId).map((b) => b.zonaId));
+  }
+  const esSalonDelGrupo = (db, grupoId, zonaId) => salonesDelGrupo(db, grupoId).indexOf(zonaId) >= 0;
+
   /** Estado del horario por grupo en este momento (para el panel "Ahora"). */
   function resumenHorario(db, fecha) {
     return (db.grupos || []).map((g) => {
@@ -559,6 +566,19 @@ select[data-f="rol"]{min-width:140px}
     const grupo = byId(db.grupos, alumno.grupoId);
     const gNombre = grupo ? grupo.nombre : 'sin grupo';
 
+    /* fin de semana (o día sin clases): un alumno identificado en CUALQUIER zona es motivo de alerta llamativa.
+       En zona restringida se conserva su aviso propio (ya es crítico) y solo se le añade el motivo. */
+    const diaSinClases = !esDiaDeClase(db, fecha);
+    const textoDia = diaSinClases ? estadoHorarioEscolar(db, fecha).texto : '';
+    if (diaSinClases && zona.tipo !== 'restringida') {
+      if (!puedeAvisar('finsem:' + alumno.id + ':' + zona.id)) { out.log = alumno.nombre + ' en la escuela en día sin clases (aviso reciente, en espera).'; return out; }
+      const finde = fecha.getDay() === 0 || fecha.getDay() === 6;
+      avisar('alumno_fin_de_semana', 'critica', alumno.nombre + (finde ? ' está en la escuela en fin de semana' : ' está en la escuela en un día sin clases'),
+        zona.nombre + ' · ' + camara.nombre + ' · ' + hora + ' · ' + gNombre + '. ' + textoDia, destinatariosPara(db, alumno, fecha, zona));
+      out.log = alumno.nombre + (finde ? ' visto en fin de semana' : ' visto en un día sin clases') + ' (' + zona.nombre + ') → aviso.';
+      return out;
+    }
+
     /* zona de clase → asistencia */
     if (zona.tipo === 'clase') {
       const hoy = fechaKey(fecha);
@@ -593,8 +613,18 @@ select[data-f="rol"]{min-width:140px}
           'Detectado en ' + zona.nombre + ' (' + camara.nombre + ') a las ' + hora + '. Su grupo ' + gNombre + ' tiene ' + b.materia +
           (zb ? ' en ' + zb.nombre : '') + ' hasta las ' + b.fin + '.', destinatariosPara(db, alumno, fecha, zona));
         out.log = alumno.nombre + ' está en un salón que no es el suyo → aviso.';
+      } else if (!grupo || !salonesDelGrupo(db, alumno.grupoId).length) {
+        out.log = alumno.nombre + ' en ' + zona.nombre + ': no tiene un grupo con salón asignado, no se puede saber si es su salón.';
+      } else if (esSalonDelGrupo(db, alumno.grupoId, zona.id)) {
+        out.log = alumno.nombre + ' en ' + zona.nombre + ': es el salón de su grupo y no tiene clase ahora, sin acción.';
       } else {
-        out.log = alumno.nombre + ' en ' + zona.nombre + ': su grupo no tiene clase ahora, sin acción.';
+        /* su grupo no tiene clase en este momento, pero este salón tampoco es suyo */
+        if (!puedeAvisar('fuera:' + alumno.id + ':' + zona.id)) { out.log = alumno.nombre + ' fuera de su salón (aviso reciente, en espera).'; return out; }
+        const propios = salonesDelGrupo(db, alumno.grupoId).map((id) => byId(db.zonas, id)).filter(Boolean).map((z) => z.nombre).join(', ');
+        avisar('fuera_de_salon', 'aviso', alumno.nombre + ' está fuera de su salón',
+          'Detectado en ' + zona.nombre + ' (' + camara.nombre + ') a las ' + hora + '. Ese salón no es de su grupo ' + gNombre +
+          (propios ? ' (su salón: ' + propios + ')' : '') + '. Su grupo no tiene clase en este momento.', destinatariosPara(db, alumno, fecha, zona));
+        out.log = alumno.nombre + ' está en un salón que no es el suyo → aviso.';
       }
       return out;
     }
@@ -617,7 +647,7 @@ select[data-f="rol"]{min-width:140px}
     if (zona.tipo === 'restringida') {
       if (!puedeAvisar('restr:' + alumno.id + ':' + zona.id)) { out.log = alumno.nombre + ' en zona restringida (aviso reciente, en espera).'; return out; }
       avisar('restringida', 'critica', alumno.nombre + ' en zona restringida',
-        zona.nombre + ' · ' + camara.nombre + ' · ' + hora + ' · ' + gNombre + '.', destinatariosPara(db, alumno, fecha, zona));
+        zona.nombre + ' · ' + camara.nombre + ' · ' + hora + ' · ' + gNombre + '.' + (textoDia ? ' ' + textoDia : ''), destinatariosPara(db, alumno, fecha, zona));
       out.log = alumno.nombre + ' en zona restringida → aviso.';
       return out;
     }
@@ -704,7 +734,7 @@ select[data-f="rol"]{min-width:140px}
 
   return {
     DEFAULT_CONFIG, uid, byId, unique, cfgOf, pad, fechaKey, minDelDia, fmtHora, hhmmToMin, minToHHMM, ahora,
-    parseVentanas, formatVentanas, esDiaDeClase, ventanaActual,
+    parseVentanas, formatVentanas, esDiaDeClase, ventanaActual, salonesDelGrupo, esSalonDelGrupo,
     estadoHorarioEscolar, bloquesActivos, bloquesActivosDeGrupo, docentesDeGrupoAhora, primerBloqueDelDia, siguienteBloque, resumenHorario,
     idsDirectivos, idsConAreas, destinatariosPara, notificacionesPara, procesarDeteccion, asistenciaDelDia, datosMuestra,
     PUESTOS, esAdmin, validarPw, normNombre, normCodigo, generarCodigo, formatearCodigo
@@ -1172,7 +1202,7 @@ select[data-f="rol"]{min-width:140px}
     av.hidden = !vacia;
     av.innerHTML = vacia ? '<div class="banner info" id="escuelaVacia"><b>Todavía no hay nada registrado.</b> Puedes empezar creando tus grupos, zonas y alumnos, o cargar datos de ejemplo (45 alumnos, 15 grupos, personal, zonas, cámaras y horarios) para probar.<div class="row" style="margin-top:8px"><button class="primary" data-act="cargar-muestra">Cargar datos de muestra</button></div></div>' : '';
     $('#panelAhora').innerHTML = '<h2>Ahora según el horario</h2>' +
-      (C.esDiaDeClase(db, d) ? '' : '<div class="banner warn">Hoy (' + DIAS_NOMBRE[d.getDay()] + ') no es día de clase: en zonas comunes cualquier alumno cuenta como fuera de horario. Cambia la hora en <b>Ajustes → Hora de prueba</b>.</div>') +
+      (C.esDiaDeClase(db, d) ? '' : '<div class="banner warn">Hoy (' + DIAS_NOMBRE[d.getDay()] + ') no es día de clase: si se ve a cualquier alumno en cualquier zona, se genera una alerta. Cambia la hora en <b>Ajustes → Hora de prueba</b>.</div>') +
       '<div class="tablewrap" style="max-height:440px;overflow:auto"><table><thead><tr><th>Grupo</th><th>Clase</th><th>Maestro</th><th>Salón</th></tr></thead><tbody>' + (filas || '<tr><td colspan="4" class="muted">Sin grupos</td></tr>') + '</tbody></table></div>';
   }
   function logDeteccion(fecha, texto) {

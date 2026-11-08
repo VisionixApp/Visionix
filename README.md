@@ -131,6 +131,11 @@ Hay dos tipos de cuenta:
 - Lo reciben los administradores y el personal que tenga esa zona asignada (los maestros no).
 - En Ajustes puedes apagar los avisos discretos o cambiar los minutos entre avisos. Los llamativos no se pueden apagar.
 
+**Alumnos identificados: avisos por lugar y día**
+- **Alumno fuera de su salón** (aviso amarillo): se genera cuando un alumno reconocido aparece en un **salón que no es de su grupo**. Cuenta tanto si su grupo tiene clase en ese momento (el aviso indica qué materia y en qué salón le toca) como si no (receso, antes o después de clases). Se considera «su salón» cualquier zona donde el horario de su grupo lo ubica (su aula, un laboratorio…). Si su grupo no tiene ningún salón en «Horarios», o el alumno no tiene grupo, no se inventa el aviso. No se repite para el mismo alumno y salón antes del tiempo de espera configurado.
+- **Alumno en fin de semana** (alerta llamativa roja): cualquier alumno reconocido, **en cualquier zona** (salón, patio, pasillo…) y a cualquier hora, en sábado, domingo o cualquier día que no esté marcado como día de clase. En una zona restringida se mantiene su aviso de zona restringida (no se duplica) y se le añade el motivo. En esos días no se toma asistencia.
+- Destinatarios de ambos: los administradores y el personal con esa zona o ese grupo asignado; el maestro del grupo solo si en ese momento le está dando clase.
+
 **Seguridad de los accesos** (lo que hace y lo que no):
 - Los permisos los hace cumplir **la base de datos** (seguridad por fila), no solo la pantalla: el personal autorizado recibe únicamente lo necesario para ver **sus** avisos (no ve huellas faciales, ni la lista de alumnos, ni los códigos de otras personas) y no puede escribir nada, salvo marcar como leídos sus propios avisos. El administrador ve y cambia todo.
 - Las contraseñas de los administradores las guarda Supabase (nunca están en las tablas de VISIONIX). El código del personal es aleatorio; tras varios intentos fallidos con el mismo nombre se bloquea.

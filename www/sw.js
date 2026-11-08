@@ -1,6 +1,6 @@
 /* Service worker de "VISIONIX (prueba)": app y modelos de reconocimiento disponibles sin internet.
    Solo se usa al abrir la app desde un navegador (PWA). En el APK los archivos ya van incluidos. */
-const VERSION = 'visionix-v6';
+const VERSION = 'visionix-v7';
 const APP = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png'];
 const CDNS = ['cdn.jsdelivr.net', 'unpkg.com', 'vladmandic.github.io'];
 

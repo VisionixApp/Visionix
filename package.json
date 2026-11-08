@@ -1,6 +1,6 @@
 {
   "name": "visionix-prueba",
-  "version": "4.2.0",
+  "version": "4.3.0",
   "private": true,
   "description": "VISIONIX (versión de prueba, con Supabase) empaquetada como app Android con Capacitor",
   "scripts": {

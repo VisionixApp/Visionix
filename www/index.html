@@ -81,6 +81,11 @@ td.acts button{margin-right:4px}
 .pill.warn{background:var(--aviso-soft);color:var(--aviso);border-color:transparent}
 .pill.bad{background:var(--crit-soft);color:var(--crit);border-color:transparent}
 .pill.info{background:var(--info-soft);color:var(--info);border-color:transparent}
+.ipcam{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0;background:var(--bg)}
+.ipcam code{background:var(--card);border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-size:12.5px}
+.ipcam img{display:block;max-width:240px;width:100%;border-radius:8px;margin-top:6px;border:1px solid var(--line)}
+.ipcam .ok-txt{color:var(--ok)}
+.ipcam .mal-txt{color:var(--crit)}
 .stage{position:relative;background:#0b0f14;border-radius:10px;overflow:hidden;aspect-ratio:4/3;display:grid;place-items:center}
 .stage.small{max-width:420px;margin:8px auto}
 .stage video,.stage canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
@@ -257,6 +262,7 @@ select[data-f="rol"]{min-width:140px}
               <li>En <b>Monitor</b>, elige la cámara «Cámara Salón 1°1» (y que tu alumno sea del grupo 1°1) y pulsa «Iniciar cámara». Al reconocerte se marca tu asistencia, una sola vez al día.</li>
               <li>Cambia a «Cámara Azotea» (restringida) o «Cámara Patio» (común, fuera de horario) para generar avisos.</li>
               <li>Alumno en un salón que no es el suyo (por ejemplo, tú de 1°1 frente a «Cámara Salón 1°2») → alerta «fuera de su salón», haya o no clase en ese momento. Y si fijas en <b>Ajustes → Hora de prueba</b> un sábado o domingo, cualquier alumno que se vea en cualquier cámara genera una alerta <b>llamativa</b> de fin de semana.</li>
+              <li><b>Cámara WiFi externa:</b> en «Dispositivo de video» elige «Cámara IP (WiFi)», escribe la dirección de la foto de tu cámara (por ejemplo <code>http://192.168.1.110/snapshot.jpg</code>), su usuario y contraseña, y pulsa «Guardar y probar conexión». Solo funciona en la app instalada, con el teléfono en la misma WiFi.</li>
               <li>Persona sin rostro registrado: en el Monitor elige «Persona no identificada» en el simulador. En horario de clase y en una zona normal solo deja un aviso <b>discreto</b> en la bandeja; en «Cámara Azotea», fuera de horario o en fin de semana (usa «Hora de prueba») el aviso es <b>llamativo</b>.</li>
               <li>Para ver lo que recibe el personal: pulsa «Cerrar sesión» y entra como «Personal autorizado» con nombre, puesto y código (los códigos están en «Personal y grupos»; para ver los avisos llegar en vivo, abre VISIONIX en otro dispositivo o en una ventana de incógnito con esa sesión). Cada maestro solo recibe los avisos de los alumnos del grupo al que da clase en ese momento (en el panel «Ahora según el horario» ves qué maestro tiene cada grupo); la tutora de 1°1, la secretaria y el orientador de muestra reciben los de sus áreas.</li>
             </ol>
@@ -269,8 +275,30 @@ select[data-f="rol"]{min-width:140px}
               <select id="selCamara"></select>
             </label>
             <label>Dispositivo de video
-              <select id="selDispositivo"><option value="">Predeterminado</option></select>
+              <select id="selDispositivo"><option value="">Predeterminado</option><option value="__ip__">Cámara IP (WiFi)</option></select>
             </label>
+          </div>
+          <div id="ipcamBox" class="ipcam" hidden>
+            <b>Cámara IP (WiFi)</b>
+            <p class="muted" style="margin:4px 0 6px">Escribe la dirección de la <b>foto</b> de tu cámara, por ejemplo <code>http://192.168.1.110/snapshot.jpg</code>. El teléfono debe estar en la misma WiFi que la cámara y tener instalada la app de VISIONIX (en el navegador, Chrome suele bloquear esta conexión).</p>
+            <div class="row">
+              <label style="flex:1 1 260px">Dirección de la foto
+                <input id="ipUrl" type="text" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="http://192.168.1.110/snapshot.jpg">
+              </label>
+              <label>Usuario
+                <input id="ipUser" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" value="admin">
+              </label>
+              <label>Contraseña
+                <input id="ipPass" type="password" autocomplete="off" placeholder="(vacía si no tiene)">
+              </label>
+            </div>
+            <div class="row">
+              <button class="primary" data-act="ip-probar">Guardar y probar conexión</button>
+              <button data-act="ip-olvidar">Olvidar cámara</button>
+              <span id="ipMsg" class="muted" role="status"></span>
+            </div>
+            <img id="ipVista" alt="Vista previa de la cámara IP" hidden>
+            <p class="muted" style="margin:6px 0 0;font-size:12.5px">La dirección, el usuario y la contraseña se guardan solo en este teléfono. No se envían a la nube.</p>
           </div>
           <p id="camZonaInfo" class="muted"></p>
           <div class="stage" id="stage">
@@ -1088,7 +1116,7 @@ select[data-f="rol"]{min-width:140px}
   const ui = { tab: ss.get('tab') || 'monitor', userId: null, camaraId: ss.get('cam'), deviceId: null, loginTab: 'personal' };
   const memo = { ultimo: {} };
   const rt = { libReady: false, libEstado: 'cargando', matcher: null, running: false, paused: false, stream: null, timer: null,
-    streak: {}, lastCall: {}, bitacora: [], mirror: true, enrolToken: 0, enrolPend: null };
+    streak: {}, lastCall: {}, bitacora: [], mirror: true, enrolToken: 0, enrolPend: null, ip: null };
 
   /* ---------- utilidades de interfaz ---------- */
   const ahora = () => C.ahora(db);
@@ -1176,6 +1204,9 @@ select[data-f="rol"]{min-width:140px}
     $('#simAlumno').innerHTML = db.grupos.filter((g) => db.alumnos.some((a) => a.grupoId === g.id))
       .map((g) => '<optgroup label="' + esc(g.nombre) + '">' + db.alumnos.filter((a) => a.grupoId === g.id).map(optA).join('') + '</optgroup>').join('') +
       (sinGrupo.length ? '<optgroup label="Sin grupo">' + sinGrupo.map(optA).join('') + '</optgroup>' : '') + '<option value="">Persona no identificada</option>';
+    if (!ui.fuenteLista) { ui.fuenteLista = true; if (ipCfg.usar() && ipCfg.leer()) ui.deviceId = IP_FUENTE; }   // un teléfono que ya usa la cámara IP arranca con ella
+    if (ui.deviceId === IP_FUENTE) $('#selDispositivo').value = IP_FUENTE;
+    renderIpBox();
     renderPanelAhora(); renderBitacora(); renderBtnCam();
   }
   function descripcionZonaAhora(cam) {
@@ -1259,9 +1290,208 @@ select[data-f="rol"]{min-width:140px}
     rt.matcher = lab.length ? new faceapi.FaceMatcher(lab, C.cfgOf(db).umbralDistancia) : null;
   }
 
+  /* ---------- cámara IP (WiFi): la app pide fotos JPEG por HTTP ---------- */
+  /* Muchas cámaras WiFi baratas no dejan sacar video en vivo a otras apps, pero sí entregan una FOTO actual en una dirección tipo
+     http://192.168.1.110/snapshot.jpg (con usuario y contraseña). La app pide esa foto ~3 veces por segundo, la dibuja en un canvas
+     y lo convierte en un «stream» (captureStream): así todo lo demás (detección, registro de rostros, avisos) funciona igual que
+     con la cámara del teléfono. En la app Android la petición la hace el plugin nativo CapacitorHttp (sin CORS ni bloqueo de
+     contenido mixto); en un navegador normal se intenta con fetch, que casi siempre lo bloquea. */
+  const IP_FUENTE = '__ip__', IP_CFG_KEY = 'visionix_ipcam', IP_USO_KEY = 'visionix_ipcam_usar';
+  const IP_INTERVALO = 300, IP_TIMEOUT = 4000, IP_ANCHO_MAX = 1280, IP_FALLOS_SIN_SENAL = 3;
+  const ipCfg = {
+    leer() { try { const o = JSON.parse(localStorage.getItem(IP_CFG_KEY) || 'null'); return o && typeof o === 'object' && o.url ? o : null; } catch (e) { return null; } },
+    guardar(o) { try { localStorage.setItem(IP_CFG_KEY, JSON.stringify({ url: o.url, usuario: o.usuario || '', clave: o.clave || '' })); return true; } catch (e) { return false; } },
+    borrar() { try { localStorage.removeItem(IP_CFG_KEY); } catch (e) { /* sin almacenamiento */ } },
+    usar() { try { return localStorage.getItem(IP_USO_KEY) === '1'; } catch (e) { return false; } },
+    ponerUso(v) { try { if (v) localStorage.setItem(IP_USO_KEY, '1'); else localStorage.removeItem(IP_USO_KEY); } catch (e) { /* sin almacenamiento */ } }
+  };
+  function errIp(msg) { const e = new Error(msg); e.name = 'IpError'; return e; }
+  const mensajeIp = (e) => (e && e.name === 'IpError' ? e.message : 'No se pudo leer la cámara' + (e && e.message ? ': ' + e.message : '.'));
+  const esNativa = () => !!(window.Capacitor && (typeof window.Capacitor.isNativePlatform === 'function' ? window.Capacitor.isNativePlatform() : window.Capacitor.platform && window.Capacitor.platform !== 'web'));
+  function ipEsLocal(h) {
+    if (h === 'localhost' || /\.local$/i.test(h)) return true;
+    const m = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(h);
+    if (!m) return false;
+    const a = +m[1], b = +m[2];
+    return a === 10 || a === 127 || (a === 192 && b === 168) || (a === 172 && b >= 16 && b <= 31) || (a === 169 && b === 254);
+  }
+  /** Limpia lo que escribió la persona: agrega http:// si falta, acepta «http://usuario:clave@ip/ruta» y solo permite redes locales. */
+  function normalizarUrlIp(texto, usuario, clave) {
+    let t = String(texto || '').trim();
+    if (!t) throw errIp('Escribe la dirección de la foto de la cámara.');
+    if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(t)) t = 'http://' + t;
+    let u; try { u = new URL(t); } catch (e) { throw errIp('La dirección no es válida. Ejemplo: http://192.168.1.110/snapshot.jpg'); }
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') throw errIp('La dirección debe empezar con http:// (por ejemplo http://192.168.1.110/snapshot.jpg).');
+    if (!ipEsLocal(u.hostname)) throw errIp('Por seguridad solo se aceptan cámaras de tu red local (direcciones 192.168.x.x, 10.x.x.x o 172.16 a 172.31.x.x).');
+    if (u.username) { try { usuario = decodeURIComponent(u.username); clave = decodeURIComponent(u.password); } catch (e) { usuario = u.username; clave = u.password; } }
+    u.username = ''; u.password = '';
+    return { url: u.href, usuario: usuario || '', clave: clave || '' };
+  }
+  function cabeceraBasic(usuario, clave) {
+    let bin = ''; new TextEncoder().encode((usuario || '') + ':' + (clave || '')).forEach((b) => { bin += String.fromCharCode(b); });
+    return 'Basic ' + btoa(bin);
+  }
+  function base64ABlob(b64, tipo) {
+    const bin = atob(b64), arr = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    return new Blob([arr], { type: tipo || 'image/jpeg' });
+  }
+  async function esImagen(blob) {
+    if (!blob || blob.size < 4) return false;
+    const b = new Uint8Array(await blob.slice(0, 4).arrayBuffer());
+    return (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) || (b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47);
+  }
+  /** Pide UNA foto a la cámara. Devuelve un Blob de imagen o lanza un IpError con un mensaje entendible. */
+  async function pedirFotoIp(cfg) {
+    const headers = {};
+    if (cfg.usuario || cfg.clave) headers.Authorization = cabeceraBasic(cfg.usuario, cfg.clave);   // se manda desde la primera petición: estas cámaras no «piden» la contraseña
+    const http = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.CapacitorHttp;
+    let status = 0, blob = null;
+    if (esNativa() && http && typeof http.request === 'function') {
+      let r;
+      try { r = await http.request({ url: cfg.url, method: 'GET', headers, responseType: 'blob', connectTimeout: IP_TIMEOUT, readTimeout: IP_TIMEOUT }); }
+      catch (e) { throw errIp('No se pudo conectar con la cámara. Revisa que el teléfono esté en la misma WiFi que la cámara, que la cámara esté encendida y que la dirección sea correcta.'); }
+      status = r && r.status;
+      if (status >= 200 && status < 300) {
+        if (!r.data || typeof r.data !== 'string') throw errIp('La cámara respondió sin ninguna foto.');
+        const tipo = r.headers && (r.headers['Content-Type'] || r.headers['content-type']);
+        try { blob = base64ABlob(r.data, tipo && /^image\//i.test(tipo) ? tipo : 'image/jpeg'); } catch (e) { throw errIp('La respuesta de la cámara no se pudo leer.'); }
+      }
+    } else {
+      const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), IP_TIMEOUT);
+      try {
+        const resp = await fetch(cfg.url, { headers, cache: 'no-store', signal: ctl.signal });
+        status = resp.status;
+        if (resp.ok) blob = await resp.blob();
+      } catch (e) { throw errIp('No se pudo leer la cámara. Revisa la WiFi y la dirección. Si estás en un navegador (no en la app instalada), Chrome suele bloquear esta conexión por seguridad: usa la app de VISIONIX en el teléfono.'); }
+      finally { clearTimeout(t); }
+    }
+    if (status === 401 || status === 403) throw errIp('La cámara rechazó el usuario o la contraseña (error ' + status + ').');
+    if (status === 404) throw errIp('La cámara no tiene esa dirección (error 404). Revisa la ruta de la foto, por ejemplo /snapshot.jpg.');
+    if (!(status >= 200 && status < 300)) throw errIp('La cámara respondió con un error (' + (status || 'sin respuesta') + ').');
+    if (!(await esImagen(blob))) throw errIp('La cámara respondió, pero no con una foto (JPEG). Revisa la dirección.');
+    return blob;
+  }
+  function crearBitmap(blob, opciones) {
+    if (window.createImageBitmap) return opciones ? createImageBitmap(blob, opciones).catch(() => createImageBitmap(blob)) : createImageBitmap(blob);
+    return new Promise((res, rej) => {
+      const url = URL.createObjectURL(blob), im = new Image();
+      im.onload = () => { URL.revokeObjectURL(url); res(im); };
+      im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('imagen no válida')); };
+      im.src = url;
+    });
+  }
+  /** Ancho y alto de un JPEG leyendo solo su encabezado (sin decodificarlo). null si no se puede. */
+  async function dimensionesJpeg(blob) {
+    try {
+      const b = new Uint8Array(await blob.slice(0, 65536).arrayBuffer());
+      if (b[0] !== 0xff || b[1] !== 0xd8) return null;
+      let i = 2;
+      while (i + 9 < b.length) {
+        if (b[i] !== 0xff) { i++; continue; }
+        const m = b[i + 1];
+        if (m === 0xff) { i++; continue; }
+        if (m >= 0xc0 && m <= 0xcf && m !== 0xc4 && m !== 0xc8 && m !== 0xcc) return { h: (b[i + 5] << 8) | b[i + 6], w: (b[i + 7] << 8) | b[i + 8] };
+        i += 2 + ((b[i + 2] << 8) | b[i + 3]);
+      }
+    } catch (e) { /* sin dimensiones: se decodifica completa */ }
+    return null;
+  }
+  /** Dibuja la foto en el canvas de la cámara IP (como mucho 1280 px de ancho, para que el teléfono no se sature con cámaras de 4–8 MP). */
+  async function dibujarFotoIp(blob, ip) {
+    const d = await dimensionesJpeg(blob);
+    const reducir = d && d.w > IP_ANCHO_MAX ? IP_ANCHO_MAX / d.w : 1;
+    let bmp;
+    try { bmp = await crearBitmap(blob, reducir < 1 ? { resizeWidth: Math.round(d.w * reducir), resizeHeight: Math.round(d.h * reducir), resizeQuality: 'low' } : undefined); }
+    catch (e) { throw errIp('La foto de la cámara no se pudo leer (¿imagen dañada?).'); }
+    const k = bmp.width > IP_ANCHO_MAX ? IP_ANCHO_MAX / bmp.width : 1;   // si no se pudo reducir al decodificar, se reduce al dibujar
+    const w = Math.round(bmp.width * k), h = Math.round(bmp.height * k);
+    if (ip.canvas.width !== w || ip.canvas.height !== h) { ip.canvas.width = w; ip.canvas.height = h; }
+    ip.ctx.drawImage(bmp, 0, 0, w, h);
+    if (bmp.close) bmp.close();
+  }
+  function limpiarOverlay() { const cv = $('#overlay'); cv.getContext('2d').clearRect(0, 0, cv.width, cv.height); }
+  const estadoNormalCam = () => (rt.libReady ? 'Reconociendo…' : 'Cámara encendida, pero el reconocimiento facial aún no está listo.');
+  function arrancarCicloIp(ip) {
+    const paso = async () => {
+      if (rt.ip !== ip) return;
+      const t0 = performance.now();
+      try {
+        const blob = await pedirFotoIp(ip.cfg);
+        if (rt.ip !== ip) return;
+        await dibujarFotoIp(blob, ip);
+        if (rt.ip !== ip) return;
+        ip.frame++; ip.fallos = 0;
+        if (ip.sinSenal) { ip.sinSenal = false; if (rt.running) camEstado(estadoNormalCam()); }
+      } catch (e) {
+        if (rt.ip !== ip) return;
+        ip.fallos++;
+        if (ip.fallos >= IP_FALLOS_SIN_SENAL && !ip.sinSenal) { ip.sinSenal = true; rt.streak = {}; limpiarOverlay(); }   // la última foto se queda en pantalla, pero NO se analiza de nuevo
+        if (ip.sinSenal && rt.running) camEstado('Sin señal de la cámara IP. ' + mensajeIp(e));
+      }
+      if (rt.ip !== ip) return;
+      ip.timer = setTimeout(paso, ip.fallos ? 1500 : Math.max(30, IP_INTERVALO - (performance.now() - t0)));
+    };
+    ip.timer = setTimeout(paso, IP_INTERVALO);
+  }
+  async function abrirCamaraIp() {
+    const cfg = ipCfg.leer();
+    if (!cfg) throw errIp('Primero escribe la dirección de la cámara IP y toca «Guardar y probar conexión».');
+    const ip = { cfg, canvas: document.createElement('canvas'), ctx: null, frame: 0, visto: 0, fallos: 0, sinSenal: false, timer: null };
+    ip.ctx = ip.canvas.getContext('2d');
+    const blob = await pedirFotoIp(cfg);    // si falla, el error le llega a la persona antes de «encender» nada
+    await dibujarFotoIp(blob, ip);
+    ip.frame = 1;
+    rt.ip = ip;
+    rt.stream = ip.canvas.captureStream(15);
+    rt.mirror = false;
+    const v = $('#video'); v.classList.remove('mirror'); v.srcObject = rt.stream;
+    v.play().catch(() => {});
+    await dibujarFotoIp(blob, ip);          // un fotograma más, ya con el stream conectado, para que el video aparezca de inmediato
+    arrancarCicloIp(ip);
+    await llenarDispositivos();
+    renderBtnCam();
+  }
+  function detenerIp() { const ip = rt.ip; rt.ip = null; if (ip) clearTimeout(ip.timer); }
+  function renderIpBox() {
+    const box = $('#ipcamBox'); if (!box) return;
+    const on = ui.deviceId === IP_FUENTE;
+    box.hidden = !on;
+    if (!on) return;
+    const c = ipCfg.leer();
+    $('#ipUrl').value = c ? c.url : ''; $('#ipUser').value = c ? c.usuario : 'admin'; $('#ipPass').value = c ? c.clave : '';
+    ipMsg(c ? 'Cámara guardada en este teléfono.' : '');
+  }
+  function ipMsg(t, tipo) { const e = $('#ipMsg'); if (!e) return; e.textContent = t || ''; e.className = tipo === 'ok' ? 'ok-txt' : tipo === 'mal' ? 'mal-txt' : 'muted'; }
+  function reiniciarMonitorSiHaceFalta() { if (rt.stream) { const was = rt.running; detenerMonitor(true); if (was) alternarMonitor(); } }
+  async function probarCamaraIp() {
+    let cfg;
+    try { cfg = normalizarUrlIp($('#ipUrl').value, $('#ipUser').value, $('#ipPass').value); } catch (e) { ipMsg(mensajeIp(e), 'mal'); return; }
+    ipMsg('Probando la conexión…');
+    let blob;
+    try { blob = await pedirFotoIp(cfg); } catch (e) { ipMsg(mensajeIp(e), 'mal'); return; }
+    const guardada = ipCfg.guardar(cfg); ipCfg.ponerUso(true);
+    $('#ipUrl').value = cfg.url; $('#ipUser').value = cfg.usuario; $('#ipPass').value = cfg.clave;
+    const img = $('#ipVista');
+    if (img.dataset.url) URL.revokeObjectURL(img.dataset.url);
+    img.dataset.url = URL.createObjectURL(blob);
+    img.onload = () => ipMsg('Conexión correcta: la cámara entregó una foto de ' + img.naturalWidth + '×' + img.naturalHeight + '.' + (guardada ? ' Ya puedes pulsar «Iniciar cámara y reconocimiento».' : ' (No se pudo guardar en este teléfono: tendrás que escribirla otra vez la próxima vez.)'), 'ok');
+    img.onerror = () => ipMsg('La cámara respondió, pero la imagen no se puede mostrar.', 'mal');
+    img.src = img.dataset.url; img.hidden = false;
+    reiniciarMonitorSiHaceFalta();
+  }
+  function olvidarCamaraIp() {
+    ipCfg.borrar(); ipCfg.ponerUso(false);
+    $('#ipUrl').value = ''; $('#ipUser').value = 'admin'; $('#ipPass').value = '';
+    const img = $('#ipVista'); if (img.dataset.url) { URL.revokeObjectURL(img.dataset.url); img.dataset.url = ''; } img.hidden = true;
+    ipMsg('Cámara olvidada.');
+    if (rt.ip) detenerMonitor(true);
+  }
+
   /* ---------- cámara ---------- */
   function camEstado(t) { $('#camEstado').textContent = t || ''; }
   function errorCamara(e) {
+    if (e && e.name === 'IpError') return e.message;
     if (window.Capacitor && e && e.name === 'NotAllowedError') return 'Permiso de cámara denegado. En Android: Ajustes → Aplicaciones → VISIONIX → Permisos → Cámara → Permitir, y vuelve a intentar.';
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return 'Este navegador no permite usar la cámara en esta página. Abre el archivo con Chrome, Edge o Firefox desde tu computadora (o desde https / localhost).';
     switch (e && e.name) {
@@ -1273,6 +1503,7 @@ select[data-f="rol"]{min-width:140px}
   }
   async function abrirCamara() {
     if (rt.stream) return;
+    if (ui.deviceId === IP_FUENTE) return abrirCamaraIp();
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('sin mediaDevices');
     const video = { width: { ideal: 640 }, height: { ideal: 480 } };
     if (ui.deviceId) video.deviceId = { exact: ui.deviceId }; else video.facingMode = 'user';
@@ -1288,17 +1519,19 @@ select[data-f="rol"]{min-width:140px}
     renderBtnCam();
   }
   function cerrarCamara() {
+    detenerIp();
     if (rt.stream) rt.stream.getTracks().forEach((t) => t.stop());
     rt.stream = null; $('#video').srcObject = null;
-    const cv = $('#overlay'); cv.getContext('2d').clearRect(0, 0, cv.width, cv.height);
+    limpiarOverlay();
     renderBtnCam();
   }
   async function llenarDispositivos() {
-    try {
-      const l = (await navigator.mediaDevices.enumerateDevices()).filter((d) => d.kind === 'videoinput');
-      const cur = rt.stream && rt.stream.getVideoTracks()[0] && rt.stream.getVideoTracks()[0].getSettings().deviceId;
-      $('#selDispositivo').innerHTML = '<option value="">Predeterminado</option>' + l.map((d, i) => '<option value="' + esc(d.deviceId) + '"' + (d.deviceId === (ui.deviceId || cur) ? ' selected' : '') + '>' + esc(d.label || 'Cámara ' + (i + 1)) + '</option>').join('');
-    } catch (e) { /* sin lista de dispositivos */ }
+    let l = [];
+    try { l = (await navigator.mediaDevices.enumerateDevices()).filter((d) => d.kind === 'videoinput'); } catch (e) { l = []; /* sin lista de dispositivos */ }
+    const cur = !rt.ip && rt.stream && rt.stream.getVideoTracks()[0] && rt.stream.getVideoTracks()[0].getSettings().deviceId;
+    $('#selDispositivo').innerHTML = '<option value="">Predeterminado</option>' +
+      l.map((d, i) => '<option value="' + esc(d.deviceId) + '"' + (d.deviceId === (ui.deviceId || cur) ? ' selected' : '') + '>' + esc(d.label || 'Cámara ' + (i + 1)) + '</option>').join('') +
+      '<option value="' + IP_FUENTE + '"' + (ui.deviceId === IP_FUENTE ? ' selected' : '') + '>Cámara IP (WiFi)</option>';
   }
   async function alternarMonitor() {
     if (!esAdminSesion()) return;
@@ -1319,11 +1552,14 @@ select[data-f="rol"]{min-width:140px}
     if (!rt.running) return;
     const t0 = performance.now();
     try {
-      const v = $('#video');
-      if (rt.libReady && !rt.paused && v.readyState >= 2 && v.videoWidth) {
-        if (rt.matcher === null) reconstruirMatcher();
-        const dets = await faceapi.detectAllFaces(v, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.5 })).withFaceLandmarks().withFaceDescriptors();
-        if (rt.running) procesarFotograma(dets);
+      const v = $('#video'), ip = rt.ip;
+      if (rt.libReady && !rt.paused && (ip ? ip.frame > 0 : v.readyState >= 2 && v.videoWidth)) {
+        if (!ip || ip.frame !== ip.visto) {   // con cámara IP cada foto se analiza una sola vez; si no llegan fotos nuevas, no se analiza nada
+          if (ip) ip.visto = ip.frame;
+          if (rt.matcher === null) reconstruirMatcher();
+          const dets = await faceapi.detectAllFaces(ip ? ip.canvas : v, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.5 })).withFaceLandmarks().withFaceDescriptors();
+          if (rt.running) procesarFotograma(dets);
+        }
       } else if (rt.libReady && rt.libEstado === 'listo' && camEstadoTxt() !== 'Reconociendo…' && !rt.paused) {
         camEstado('Reconociendo…');
       }
@@ -1334,7 +1570,7 @@ select[data-f="rol"]{min-width:140px}
 
   function procesarFotograma(dets) {
     const v = $('#video'), cv = $('#overlay'), cx = cv.getContext('2d');
-    const W = v.videoWidth, H = v.videoHeight;
+    const W = rt.ip ? rt.ip.canvas.width : v.videoWidth, H = rt.ip ? rt.ip.canvas.height : v.videoHeight;
     if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
     cx.clearRect(0, 0, W, H);
     const cfg = C.cfgOf(db);
@@ -1750,7 +1986,7 @@ select[data-f="rol"]{min-width:140px}
     if (el.id === 'la_ver') { $('#la_pw').type = el.checked ? 'text' : 'password'; return; }
     if (!esAdminSesion()) return; // el personal autorizado no puede cambiar nada
     if (el.id === 'selCamara') { ui.camaraId = el.value; ss.set('cam', ui.camaraId); rt.streak = {}; rt.lastCall = {}; renderPanelAhora(); return; }
-    if (el.id === 'selDispositivo') { ui.deviceId = el.value || null; if (rt.stream) { const was = rt.running; detenerMonitor(true); if (was) alternarMonitor(); } return; }
+    if (el.id === 'selDispositivo') { ui.deviceId = el.value || null; ipCfg.ponerUso(ui.deviceId === IP_FUENTE); renderIpBox(); reiniciarMonitorSiHaceFalta(); return; }
     if (el.id === 'alGrupo') { ui.alGrupo = el.value; renderAlumnosFilas(); return; }
     if (el.id === 'hoGrupo') { ui.hoGrupo = el.value; renderHorarios(); return; }
     if (el.id === 'as_fecha' || el.id === 'as_grupo') { ui.asFecha = $('#as_fecha').value || null; ui.asGrupo = $('#as_grupo').value; renderAsistencia(); return; }
@@ -1799,6 +2035,8 @@ select[data-f="rol"]{min-width:140px}
     const b = e.target.closest('[data-act]'); if (!b) return;
     const act = b.dataset.act, id = b.dataset.id;
     switch (act) {
+      case 'ip-probar': probarCamaraIp(); break;
+      case 'ip-olvidar': olvidarCamaraIp(); break;
       case 'modal-cerrar': cerrarModal(); if (rt.alCancelar) { const f = rt.alCancelar; rt.alCancelar = null; f(); } break;
       case 'copiar-respaldo': {
         const ta = $('#respaldoTxt'); if (!ta) break; ta.focus(); ta.select();
